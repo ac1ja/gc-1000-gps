@@ -192,10 +192,35 @@
                     "filename_format": "%PREFIX/silkscreen_top.gbr",
                     "layers": [
                         21,
-                        25
+                        25,
+                        27
                     ],
                     "milling": false,
                     "name": "Silkscreen Top",
+                    "polarity": "positive",
+                    "type": "gerber_layer"
+                },
+                {
+                    "advanced_options": {
+                        "mirror": false,
+                        "offset_x": 0,
+                        "offset_y": 0,
+                        "rotate": false,
+                        "upside_down": false
+                    },
+                    "board_outline": false,
+                    "config": {
+                        "file_function": "Legend",
+                        "index": 1,
+                        "layer_type": "bottom"
+                    },
+                    "filename_format": "%PREFIX/silkscreen_bottom.gbr",
+                    "layers": [
+                        22,
+                        26
+                    ],
+                    "milling": false,
+                    "name": "Silkscreen Bottom",
                     "polarity": "positive",
                     "type": "gerber_layer"
                 }
@@ -251,7 +276,7 @@
             ]
         }
     ],
-    "timestamp": "2021-08-25T16:10:06",
+    "timestamp": "2021-10-19T13:30:02",
     "type": "EAGLE CAM job",
     "units": "metric",
     "version": "9.2.0"

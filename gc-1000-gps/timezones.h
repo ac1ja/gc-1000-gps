@@ -1,17 +1,26 @@
+// uses timezone lib
+// format is
+// TimeChangeRule myRule = {abbrev, week, dow, month, hour, offset};
+
 int getUTCOffsetHours(byte utc_hour) {
     /* return a value in hours offset from utc-0
      */
 
-    byte local_time = (utc_hour + (timeZone - 13)) % clockFormat; // the local time is the timezone dip setting offset by 13, added to the UTC hour, and % 24 or % 12 to fit it onto a clock display scale.
+    byte local_hour = (utc_hour + utcHourOffset) % (clockFormat);
 
-    return local_time;
+    // Clocks dont display 0:00
+    if (local_hour == 0) { local_hour = 12; }
+
+    return local_hour;
 }
 
 int getUTCOffsetMinutes(byte utc_minute) {
     /* Not implemented!
      */
 
-    return utc_minute;
+    byte local_minute = utc_minute + utcMinuteOffset;
+
+    return local_minute;
 }
 
 bool getAM(byte utc_hour) {
@@ -19,9 +28,7 @@ bool getAM(byte utc_hour) {
      * local time is AM
      */
 
-    byte local_time = (utc_hour + (timeZone - 13)) % 24;
-
-    if ((local_time % 12) <= 0) {
+    if (utc_hour + utcHourOffset < 12) {
         return true;
     } else {
         return false;

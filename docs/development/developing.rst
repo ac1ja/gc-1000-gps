@@ -125,4 +125,6 @@ When pushing any changes back to ``schematic`` or another development branch ple
   :width: 525
   :alt: Dip Settings
 
+
 The included script ``describe.sh`` can help automate this.
+.. _GPLv3: https://www.gnu.org/licenses/quick-guide-gplv3.en.html

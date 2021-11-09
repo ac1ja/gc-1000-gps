@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="50" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="5" altunitdist="mil" altunit="mil"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
@@ -68,11 +68,37 @@
 <pad name="P$6" x="7.62" y="0" drill="1"/>
 <pad name="P$7" x="10.16" y="0" drill="1"/>
 <pad name="P$8" x="12.7" y="0" drill="1"/>
+<wire x1="-5.08" y1="-1.27" x2="12.7" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="-5.08" y1="15.24" x2="12.7" y2="15.24" width="0.127" layer="21"/>
+<wire x1="13.97" y1="0" x2="12.7" y2="-1.27" width="0.127" layer="21" curve="-90"/>
+<wire x1="-5.08" y1="-1.27" x2="-6.35" y2="0" width="0.127" layer="21" curve="-90"/>
+<wire x1="-6.35" y1="0" x2="-6.35" y2="13.97" width="0.127" layer="21"/>
+<wire x1="13.97" y1="13.97" x2="13.97" y2="0" width="0.127" layer="21"/>
+<wire x1="-6.35" y1="13.97" x2="-5.08" y2="15.24" width="0.127" layer="21" curve="-90"/>
+<wire x1="12.7" y1="15.24" x2="13.97" y2="13.97" width="0.127" layer="21" curve="-90"/>
+<text x="1.27" y="13.462" size="1.27" layer="21">DS3231</text>
+<text x="2.54" y="6.35" size="1.27" layer="21">RTC</text>
+<text x="12.7" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">RST</text>
+<text x="10.16" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">SQW</text>
+<text x="7.62" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">32K</text>
+<text x="5.08" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">BAT</text>
+<text x="2.54" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">SDA</text>
+<text x="-2.54" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">GND</text>
+<text x="0" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">SCL</text>
+<text x="-5.08" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">VIN</text>
 </package>
 <package name="OKI-78SR">
-<pad name="P$1" x="1.27" y="0" drill="1"/>
-<pad name="P$2" x="3.81" y="0" drill="1"/>
+<pad name="P$1" x="3.81" y="0" drill="1"/>
+<pad name="P$2" x="1.27" y="0" drill="1"/>
 <pad name="P$3" x="-1.27" y="0" drill="1"/>
+<wire x1="-2.54" y1="1.27" x2="-2.54" y2="-5.588" width="0.127" layer="21"/>
+<wire x1="-2.54" y1="-5.588" x2="5.08" y2="-5.588" width="0.127" layer="21"/>
+<wire x1="5.08" y1="-5.588" x2="5.08" y2="1.27" width="0.127" layer="21"/>
+<wire x1="5.08" y1="1.27" x2="-2.54" y2="1.27" width="0.127" layer="21"/>
+<text x="0.889" y="-1.27" size="1.27" layer="21" rot="R270">GND</text>
+<text x="3.175" y="-1.27" size="1.27" layer="21" rot="R90" align="top-right">VIN</text>
+<text x="-1.4732" y="-1.27" size="1.27" layer="21" rot="R270">5V</text>
+<text x="5.588" y="-5.08" size="1.27" layer="21">&gt;NAME</text>
 </package>
 <package name="PA6H">
 <pad name="P$1" x="-5.08" y="0" drill="1"/>
@@ -84,6 +110,26 @@
 <pad name="P$7" x="10.16" y="0" drill="1"/>
 <pad name="P$8" x="12.7" y="0" drill="1"/>
 <pad name="P$9" x="15.24" y="0" drill="1"/>
+<wire x1="-5.08" y1="-1.27" x2="15.24" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="-6.35" y1="0" x2="-6.35" y2="31.75" width="0.127" layer="21"/>
+<wire x1="16.51" y1="0" x2="16.51" y2="31.75" width="0.127" layer="21"/>
+<wire x1="-5.08" y1="33.02" x2="15.24" y2="33.02" width="0.127" layer="21"/>
+<wire x1="-6.35" y1="31.75" x2="-5.08" y2="33.02" width="0.127" layer="21" curve="-90"/>
+<wire x1="15.24" y1="33.02" x2="16.51" y2="31.75" width="0.127" layer="21" curve="-90"/>
+<wire x1="16.51" y1="0" x2="15.24" y2="-1.27" width="0.127" layer="21" curve="-90"/>
+<wire x1="-5.08" y1="-1.27" x2="-6.35" y2="0" width="0.127" layer="21" curve="-90"/>
+<text x="0" y="29.21" size="1.27" layer="21">Ultimate GPS
+Breakout v3</text>
+<text x="3.81" y="15.24" size="1.27" layer="21">GPS</text>
+<text x="15.24" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">PPS</text>
+<text x="12.7" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">VIN</text>
+<text x="10.16" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">GND</text>
+<text x="7.62" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">RX</text>
+<text x="5.08" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">TX</text>
+<text x="2.54" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">FIX</text>
+<text x="0" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">VBAT</text>
+<text x="-2.54" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">EN</text>
+<text x="-5.08" y="1.27" size="1.27" layer="21" rot="R90" align="center-left">3.3V</text>
 </package>
 <package name="CD74HC238E">
 <pad name="P$1" x="-3.81" y="8.89" drill="1" shape="square"/>
@@ -102,6 +148,17 @@
 <pad name="P$14" x="3.81" y="3.81" drill="1"/>
 <pad name="P$15" x="3.81" y="6.35" drill="1"/>
 <pad name="P$16" x="3.81" y="8.89" drill="1"/>
+<text x="-7.62" y="6.35" size="1.27" layer="21" rot="SR270">LINE DECODER</text>
+<text x="0" y="5.08" size="1.27" layer="21" rot="SR270">CD74HC238E</text>
+<wire x1="5.08" y1="10.16" x2="1.27" y2="10.16" width="0.127" layer="21"/>
+<wire x1="1.27" y1="10.16" x2="-1.27" y2="10.16" width="0.127" layer="21"/>
+<wire x1="-1.27" y1="10.16" x2="-5.08" y2="10.16" width="0.127" layer="21"/>
+<wire x1="-5.08" y1="10.16" x2="-5.08" y2="-10.16" width="0.127" layer="21"/>
+<wire x1="-5.08" y1="-10.16" x2="5.08" y2="-10.16" width="0.127" layer="21"/>
+<wire x1="5.08" y1="-10.16" x2="5.08" y2="10.16" width="0.127" layer="21"/>
+<wire x1="1.27" y1="8.89" x2="-1.27" y2="8.89" width="0.127" layer="21" curve="-180"/>
+<wire x1="-1.27" y1="10.16" x2="-1.27" y2="8.89" width="0.127" layer="21"/>
+<wire x1="1.27" y1="10.16" x2="1.27" y2="8.89" width="0.127" layer="21"/>
 </package>
 <package name="GC-1000-DISP">
 <pad name="P$1" x="-24.13" y="0" drill="1"/>
@@ -128,17 +185,23 @@
 <pad name="P$23" x="31.75" y="0" drill="1"/>
 <pad name="P$24" x="34.29" y="0" drill="1"/>
 <pad name="P$25" x="36.83" y="0" drill="1"/>
+<wire x1="-25.4" y1="1.27" x2="-25.4" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="-25.4" y1="-1.27" x2="38.1" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="38.1" y1="-1.27" x2="38.1" y2="1.27" width="0.127" layer="21"/>
+<wire x1="38.1" y1="1.27" x2="-25.4" y2="1.27" width="0.127" layer="21"/>
+<text x="1.27" y="2.54" size="1.27" layer="21">DISPLAY</text>
+<rectangle x1="-20.32" y1="-1.27" x2="-17.78" y2="1.27" layer="21"/>
 </package>
 <package name="74HC595">
 <description>Made by joe</description>
-<pad name="P$1" x="-3.81" y="8.89" drill="1"/>
+<pad name="P$1" x="-3.81" y="8.89" drill="1" shape="square"/>
 <pad name="P$2" x="-3.81" y="6.35" drill="1"/>
 <pad name="P$3" x="-3.81" y="3.81" drill="1"/>
 <pad name="P$4" x="-3.81" y="1.27" drill="1"/>
 <pad name="P$5" x="-3.81" y="-1.27" drill="1"/>
 <pad name="P$6" x="-3.81" y="-3.81" drill="1"/>
 <pad name="P$7" x="-3.81" y="-6.35" drill="1"/>
-<pad name="P$8" x="-3.81" y="-8.89" drill="1" shape="square"/>
+<pad name="P$8" x="-3.81" y="-8.89" drill="1"/>
 <pad name="P$9" x="3.81" y="-8.89" drill="1"/>
 <pad name="P$10" x="3.81" y="-6.35" drill="1"/>
 <pad name="P$11" x="3.81" y="-3.81" drill="1"/>
@@ -147,6 +210,17 @@
 <pad name="P$14" x="3.81" y="3.81" drill="1"/>
 <pad name="P$15" x="3.81" y="6.35" drill="1"/>
 <pad name="P$16" x="3.81" y="8.89" drill="1"/>
+<wire x1="5.08" y1="10.16" x2="1.27" y2="10.16" width="0.127" layer="21"/>
+<wire x1="1.27" y1="10.16" x2="-1.27" y2="10.16" width="0.127" layer="21"/>
+<wire x1="-1.27" y1="10.16" x2="-5.08" y2="10.16" width="0.127" layer="21"/>
+<wire x1="-5.08" y1="10.16" x2="-5.08" y2="-10.16" width="0.127" layer="21"/>
+<wire x1="-5.08" y1="-10.16" x2="5.08" y2="-10.16" width="0.127" layer="21"/>
+<wire x1="5.08" y1="-10.16" x2="5.08" y2="10.16" width="0.127" layer="21"/>
+<wire x1="1.27" y1="8.89" x2="-1.27" y2="8.89" width="0.127" layer="21" curve="-180"/>
+<wire x1="-1.27" y1="10.16" x2="-1.27" y2="8.89" width="0.127" layer="21"/>
+<wire x1="1.27" y1="10.16" x2="1.27" y2="8.89" width="0.127" layer="21"/>
+<text x="0" y="3.81" size="1.27" layer="21" rot="SR270">74HC595</text>
+<text x="-7.62" y="7.62" size="1.27" layer="21" rot="SR270">SHIFT REGISTER</text>
 </package>
 </packages>
 <symbols>
