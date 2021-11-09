@@ -1,0 +1,17 @@
+# Build artifacts
+version.h
+_build
+
+# Eagle artifacts
+*.*#*
+*.epf
+*.pro
+
+# CAD Artifacts
+.FCStd*
+
+# Doc artifacts
+_*/
+
+# vscode
+.vscode
