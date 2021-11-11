@@ -3,6 +3,11 @@ Contributing
 
 We could use your help developing this software! All of which is free and open source under GPLv3_.
 
+.. note::
+
+  If you are only interested in getting your gc-1000 upgraded,  
+  this is not the section for you, see the :ref:`Getting Started` section for that!
+
 Notes on formatting
 ###################
 
