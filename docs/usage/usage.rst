@@ -104,7 +104,7 @@ The User Header
 Introduced in ``v0.1-lw-90`` a 2x7 pin header on the board allows user expandability with several analog and digital pins arranged in this arrangement.
 
 .. image:: images/user_header.png
-  :width: 140
+  :width: 120
   :alt: User Header
 
 The mega's ``serial`` interface is also broken out onto this user header to allow for even more functionality.
@@ -115,5 +115,5 @@ Functions of the lights
 Because gc-1000-gps is also a hardware replacement, some lights have new functions, see diagram below.
 
 .. image:: images/indicator_diagram.png
-  :width: 525
+  :width: 60%
   :alt: Indicator lights
