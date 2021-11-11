@@ -89,7 +89,7 @@ Using the first five switches, configure your timezone offset starting from UTC-
       - NOT IMPLEMENTED
 
 While fractional timezones are currently not settable via dip switches, we welcome
-users to submit a PR to add aditional timezones to the list, see :ref:`Developing`.
+users to submit a PR to add aditional timezones to the list, see :ref:`Contributing`.
 
 
 Set the 12/24 format

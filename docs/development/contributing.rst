@@ -1,7 +1,7 @@
-Developing
-==========
+Contributing
+============
 
-We could use your help developing this software! All of which is free and open source under ~~GPLv3~~.
+We could use your help developing this software! All of which is free and open source under GPLv3_.
 
 Notes on formatting
 ###################
@@ -16,36 +16,6 @@ Use only lowercase comments
      * some features of
      * the GPS module.
      */
-
-Unsorted Notes
-##############
-
-Move these
-
-.. code-block:: cpp
-
-    // IC1 - 74HC595 (LS Byte)
-    // bits 0 - 3 are going to pins 5, 3, 2 and 4 on the MC14543 BCD-to-Seven segment decoder
-    // bits 4 - 6 are going to IC3 - 74HC138 3-to-8 line decoder
-
-    // IC2 - 74HC595 (MS Byte)
-    // bit 0 - Q131 (AM LED)
-    // bit 1 - Q129 (PM LED)
-    // bit 2 - Q128 (HiSpec LED)
-    // bit 3 - Q127 (Capture LED)
-    // bit 4 - Q126 (15 MHz LED)
-    // bit 5 - Q125 (10 MHz LED)
-    // bit 6 - Q124 (5 MHz LED)
-    // bit 7 - Data LED
-
-    // IC3 - 74HC238
-    // bit 0 - Q116 (Hour - Tens)
-    // bit 1 - Q117 (Hour - Ones)
-    // bit 2 - Q118 (Min - Tens)
-    // bit 3 - Q119 (Min - Ones)
-    // bit 4 - Q121 (Sec - Tens)
-    // bit 5 - Q122 (Sec - Ones)
-    // bit 6 - Q123 (Tenth-Sec)
 
 
 The docs makefile
