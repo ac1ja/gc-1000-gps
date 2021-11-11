@@ -16,3 +16,7 @@ _*/
 
 # vscode
 .vscode
+
+# Dev
+Pipfile
+Pipfile.lock

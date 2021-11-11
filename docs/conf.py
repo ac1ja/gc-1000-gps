@@ -14,10 +14,9 @@ project = 'GC-1000-GPS'
 copyright = '2021, To Be Announced'
 author = 'Nick Soggu, Joe Sedutto'
 
-repo = git.Repo(search_parent_directories=True)
-
 # The full version, including alpha/beta/rc tags
-release = str(repo.head.object.hexsha)
+repo = git.Repo(search_parent_directories=True)
+release = str(repo.git.describe('--tags', '--dirty'))
 
 
 # -- General configuration ---------------------------------------------------
