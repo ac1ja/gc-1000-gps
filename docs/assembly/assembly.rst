@@ -60,5 +60,5 @@ If you get an error such as ``avrdude: ser_open(): can't open device "unknown": 
 If you get an error such as ``command not found: arduino-cli`` make sure you installed all dependencies_. 
 
 
-.. _dependencies: <https://github.com/ac1ja/gc-1000-gps#setup>
-.. _releases: <https://github.com/ac1ja/gc-1000-gps/releases>
+.. _dependencies: https://github.com/ac1ja/gc-1000-gps#setup
+.. _releases: https://github.com/ac1ja/gc-1000-gps/releases

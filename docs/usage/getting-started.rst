@@ -12,7 +12,7 @@ Not sure yet.
 Where to start?
 ---------------
 
-Once you have a kit, check out the :ref:`Assembly` section to begin the process of installing and configuring your board for the first time!
+Once you have a kit, check out the :ref:`Assembly of components` section to begin the process of installing and configuring your board for the first time!
 
 
 Extra tidbits
