@@ -74,45 +74,45 @@ To start, begin by installing autodesk eagle on your system, then with the git r
 First use the file manager to navigate to the ``.sch`` file, and open it.
 
 .. image:: images/eagle_tutorial/load_sch.png
-  :width: 525
+  :width: 80%
   :alt: File Menu Dropdown
 
 .. image:: images/eagle_tutorial/open_from_repo.png
-  :width: 525
+  :width: 80%
   :alt: Open In File Menu
 
 Then switch to board view
 
 .. image:: images/eagle_tutorial/open_board.png
-  :width: 525
+  :width: 100%
   :alt: Switch to board view
 
 The board viewer should open, next open the CAM processor
 
 .. image:: images/eagle_tutorial/open_cam_processor.png
-  :width: 480
+  :height: 480
   :alt: File Dropdown
 
 Use the included ``.cam`` file from the repo.
 
 .. image:: images/eagle_tutorial/load_job_file.png
-  :width: 525
+  :width: 480
   :alt: Load CAM file
 
 .. image:: images/eagle_tutorial/select_cam.png
-  :width: 525
+  :width: 480
   :alt: Select CAM file in file viewer
 
 Make sure export as zip is checked.
 
 .. image:: images/eagle_tutorial/export_as_zip.png
-  :width: 480
+  :width: 240
   :alt: Export As zip
 
 Thats it! Process the job and you're good.
 
 .. image:: images/eagle_tutorial/process_job.png
-  :width: 525
+  :width: 240
   :alt: Hit go!
 
 
@@ -127,4 +127,5 @@ When pushing any changes back to ``schematic`` or another development branch ple
 
 
 The included script ``describe.sh`` can help automate this.
+
 .. _GPLv3: https://www.gnu.org/licenses/quick-guide-gplv3.en.html
