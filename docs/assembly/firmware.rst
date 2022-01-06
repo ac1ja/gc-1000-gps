@@ -1,19 +1,5 @@
-Assembly of components
-======================
-
-While not available yet, the gc-1000-gps drop in motherboard replacement will be a very effective way to upgrade your system.
-
-To get started, you will need
-
-* Solder and soldering iron.
-* all included components.
-* an `Arduino Mega <https://store.arduino.cc/usa/mega-2560-r3>`_ plugged into your computer.
-* All dependencies_ required to build the code.
-
-
-*****************
-Building the code
-*****************
+Loading the firmware
+====================
 
 There are two methods for getting the code, you can download a release, or build from ``main``
 
