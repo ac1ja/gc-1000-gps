@@ -9,7 +9,7 @@ _build
 *.zip
 
 # CAD Artifacts
-.FCStd*
+*.FCStd1
 
 # Doc artifacts
 _*/
