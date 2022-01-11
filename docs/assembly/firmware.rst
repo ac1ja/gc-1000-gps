@@ -7,7 +7,7 @@ There are two methods for getting the code, you can download a release, or build
 Build from a release
 ####################
 
-To build from a release, go to the releases_ page on our gitlab, and select the most recent release.
+To build from a release, go to the releases_ page on our gitlab, and select the source code for our most recent release.
 
 .. image:: images/releases_screenshot.png
   :width: 400
