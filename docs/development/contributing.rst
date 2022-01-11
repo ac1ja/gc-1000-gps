@@ -27,7 +27,7 @@ The docs makefile
 #################
 
 The makefile included with this build of the docs has several new features for
-assisting generating new docs, most prominant being the
+assisting generating new docs, most prominent being the
 
 .. code-block:: shell
 
@@ -39,7 +39,7 @@ option, allowing you to render .drawio graphics or other graphics into PNG image
 Using Autodesk Eagle
 ####################
 
-All of the circut design is made with Autodesk Eagle and stored in ``schematics``.
+All of the circuit design is made with Autodesk Eagle and stored in ``schematics``.
 
 Generating a CAM file
 ---------------------
@@ -105,14 +105,14 @@ be sure to update the has on the silkscreen especially before doing a CAM job.
 The included script ``describe.sh`` can help automate this.
 
 
-Contribuiting to these docs
-###########################
+Contributing to these docs
+##########################
 
 If you'ld like to change these docs, you're in the right place! If things are
 unclear or could be described better, or if there are typos or other mistakes,
 we would be more than happy to accept your contributions!
 
-To get started, you must clone this repository using ``git``, if you're unfamiler
+To get started, you must clone this repository using ``git``, if you're unfamiliar
 with git, here is a great `Getting started resource`_.
 
 .. note::
@@ -126,7 +126,7 @@ Cloning and building locally
 
 You will need:
  - Python
- - Python enviorment manager (optional)
+ - Python environment manager (optional)
  - GNU make
 
 Before modifying the docs, it is good practice to make sure you can build them locally first.
@@ -170,7 +170,7 @@ You can now build the docs locally, the output will be located in ``_build/``.
   # Launch the HTML docs
   firefox _build/html/index.html
 
-  # Build the PDF docs (What is included in the packging)
+  # Build the PDF docs (What is included in the packaging)
   make latexpdf
 
   # Launch the PDF docs
