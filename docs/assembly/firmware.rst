@@ -1,7 +1,34 @@
 Loading the firmware
 ====================
 
-There are two methods for getting the code, you can download a release, or build from ``main``
+There are three methods for getting the firmware, you can download a precompiled release, compile a release yourself or build from ``main`` directly.
+
+
+Flash a precompiled binary
+##########################
+
+This method is generally the easiest.
+
+.. note::
+  If you purchased a kit from us, you do not need to flash a new version unless a newer version is released.
+
+Start by downloading a binary file from github
+
+.. note::
+  As long as you are flashing over USB/UART you do not need the .hex file with bootloader, only those who are flashing ISP need this hex file.
+
+.. image:: images/binary_release.png
+  :width: 400
+  :alt: Binary release
+
+You can flash via a gui tool such as AVRDUDESS_ or avrdude, **you will need to have at lease one of these programs installed.**
+
+.. code-block:: shell
+
+    # Flashing with avrdude
+    avrdude -p m2560 -c stk500v2 -P /dev/ttytACM0 -b 115200 -F -U flash:w:/path/to/gc-1000-gps.hex
+
+See AVRDUDESS_'s docs for information on how to use it to flash your hex file.
 
 
 Build from a release
@@ -9,9 +36,9 @@ Build from a release
 
 To build from a release, go to the releases_ page on our gitlab, and select the source code for our most recent release.
 
-.. image:: images/releases_screenshot.png
+.. image:: images/sourcecode_release.png
   :width: 400
-  :alt: Releases sreenshot
+  :alt: Releases Screenshot
 
 Download a copy of the sourcecode and extract it to your computer.
 
@@ -48,3 +75,4 @@ If you get an error such as ``command not found: arduino-cli`` make sure you ins
 
 .. _dependencies: https://github.com/ac1ja/gc-1000-gps#setup
 .. _releases: https://github.com/ac1ja/gc-1000-gps/releases
+.. _AVRDUDESS: https://github.com/zkemble/AVRDUDESS
