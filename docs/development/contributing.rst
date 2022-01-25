@@ -118,8 +118,7 @@ with git, here is a great `Getting started resource`_.
 .. note::
 
   This tutorial uses the git cli interface because it is standard on all operating systems,
-  but these instructions are perfectly relevant if you are using for example a GUI like `Github Desktop`_
-  for example.
+  but these instructions are perfectly relevant if you are using for example a GUI like `Github Desktop`_.
 
 Cloning and building locally
 ----------------------------
