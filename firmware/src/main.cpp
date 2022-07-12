@@ -214,7 +214,7 @@ void setup()
   delay(500);
 
   // print out some information about the software we're running.
-  // Serial.println(MOTD);
+  Serial.println(MOTD);
   delay(500);
 
   // don't sync the time yet...

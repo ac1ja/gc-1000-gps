@@ -1,7 +1,5 @@
 import subprocess
 
-Import("env")
-
 from datetime import date
 
 
@@ -57,8 +55,7 @@ username = "\x1B[34m" + username + "\x1B[0m"
 
 motd = f"\\r\\nStarting gc-1000-gps.\\r\\nThis software expects your terminal to be \x1B[46mVT100 Compatable\x1B[0m,\\r\\n\\r\\nUsing version {revision}.\\r\\ncompiled on {today.strftime('%B %d, %Y')} by {username} using {host}.\\r\\n\\r\\n"
 
-env.Append(
-    CPPDEFINES=[
-        ("MOTD", motd),
-    ]
-)
+print(f"-DMOTD='\"{motd}\"'")
+
+# This is for the boardConfig
+print("-I include/v2_Board")
