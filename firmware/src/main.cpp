@@ -17,7 +17,6 @@
 #include "display.h"
 
 // Our headers
-#include "shiftOut.h"
 #include "boardConfig.h"
 #include "buildData.h"
 #include "timezones.h"
@@ -90,7 +89,7 @@ void syncCheck()
   {
     if (syncReady && !hasTimeBeenSet)
     {
-      setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear); // set the time? TODO: remove this
+      setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear); // Set the time? This puts this time in local
       rtc.adjust(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond));
       // rtc.adjust(dipTZ.toLocal(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond).unixtime())); // adjust the time to the tz.tolocal conversion of gps stored data
       adjustTime(1); // 1pps signal = start of next second
@@ -109,7 +108,7 @@ void syncCheck()
 void updateBoard(void)
 {
   // read the status of comm pins
-  dataLED = !digitalRead(debugSerialCheck);         // if there is data on the serial line
+  display.setData(!digitalRead(debugSerialCheck));  // if there is data on the serial line
   display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
   display.setHighSpec(hasTimeBeenSet);              // if the time has been locked in/synced to the rtc
 
@@ -119,23 +118,8 @@ void updateBoard(void)
                   (((millis() - lastMillis) / 100) % 10));
 
   display.setMeridan(getAM(hour()), !getAM(hour()));
-  // AM = getAM(hour());
-  // PM = !AM;
 
-  // // Mhz lights.
-  // mhz5 = true;
-  // if (storedAge == TinyGPS::GPS_INVALID_AGE || storedAge == 0)
-  // {
-  //   mhz10 = false;
-  // }
-  // else
-  // {
-  //   mhz10 = true;
-  // }
-  // mhz15 = storedAge <= 55 && storedAge != 0;
-
-  // // if (localTens < 1)
-  // //   dataLED = true;
+  display.setDrift(display.SLOW);
 
   display.updateBoard();
 }
@@ -170,8 +154,8 @@ void setup()
   hasTimeBeenSet = false;
 
   // clear screen
-  dataOut = 0;
-  shiftOut(DATA_PIN, CLOCK_PIN, dataOut);
+  // dataOut = 0;
+  // shiftOut(DATA_PIN, CLOCK_PIN, dataOut);
 
   // initalize inturrupts
   Timer1.initialize(3000);             // Cycle every 3000μs

@@ -11,6 +11,7 @@
 
 #include "display.h"
 #include "buildData.h"
+#include "shiftMSBOut.h"
 
 uint8_t Display::buildTimeData(uint8_t digit, uint8_t position) { return (digit + (position << 4)); };
 
@@ -47,7 +48,7 @@ void Display::updateBoard()
 
     digitalWrite(segEnablePin, 0);
     digitalWrite(latchPin, 0);
-    shiftOut(dataPin, clockPin, MSBFIRST, dispData);
+    shiftMSBOut(dataPin, clockPin, dispData);
     digitalWrite(latchPin, 1);
     digitalWrite(segEnablePin, 1);
 };
@@ -85,4 +86,10 @@ void Display::setMeridan(bool _AM, bool _PM)
 };
 void Display::setHighSpec(bool highSpec) { highSpecLED = highSpec; };
 void Display::setCapture(bool capture) { captureLED = capture; };
-void Display::setDrift(Drift drift){};
+void Display::setData(bool data) { dataLED = data; };
+void Display::setDrift(Drift drift)
+{
+    mhz5 = bitRead(drift, 0);
+    mhz10 = bitRead(drift, 1);
+    mhz15 = bitRead(drift, 2);
+};
