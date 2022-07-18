@@ -30,10 +30,6 @@ TimeChangeRule *tcr; // pointer telling us where the TZ abbrev and offset is
 // Display
 Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
 
-// time_t local = myTZ.toLocal(now()); // This bogs the system down if run too fast!
-
-word dataOut = 0;
-
 unsigned long lastMillis;
 volatile bool hasTimeBeenSet;
 
@@ -91,6 +87,22 @@ void syncCheck()
     {
       setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear); // Set the time? This puts this time in local
       rtc.adjust(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond));
+
+      // Not great but maybe could be improved, this whole time-critical section needs to be simplified, timezones make it so hard.
+      byte drift = storedSecond - rtc.now().second();
+      if (abs(drift) < 1)
+      {
+        display.setDrift(display.NONE);
+      }
+      else if (drift > 1)
+      {
+        display.setDrift(display.SLOW);
+      }
+      else
+      {
+        display.setDrift(display.FAST);
+      }
+
       // rtc.adjust(dipTZ.toLocal(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond).unixtime())); // adjust the time to the tz.tolocal conversion of gps stored data
       adjustTime(1); // 1pps signal = start of next second
       lastMillis = millis();
@@ -112,14 +124,12 @@ void updateBoard(void)
   display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
   display.setHighSpec(hasTimeBeenSet);              // if the time has been locked in/synced to the rtc
 
-  display.setTime(getUTCOffsetHours(hour()),
-                  getUTCOffsetMinutes(minute()),
-                  second(),
-                  (((millis() - lastMillis) / 100) % 10));
+  display.setDispTime(getUTCOffsetHours(hour()),
+                      getUTCOffsetMinutes(minute()),
+                      second(),
+                      (((millis() - lastMillis) / 100) % 10));
 
   display.setMeridan(getAM(hour()), !getAM(hour()));
-
-  display.setDrift(display.SLOW);
 
   display.updateBoard();
 }

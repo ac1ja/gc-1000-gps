@@ -51,7 +51,7 @@ public:
 
     void updateBoard();
 
-    void setTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tenths);
+    void setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tenths);
     void setMeridan(bool AM, bool PM);
     void setHighSpec(bool highSpec);
     void setCapture(bool capture);

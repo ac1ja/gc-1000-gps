@@ -53,7 +53,7 @@ void Display::updateBoard()
     digitalWrite(segEnablePin, 1);
 };
 
-void Display::setTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tenths)
+void Display::setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tenths)
 {
     switch (currentSegment)
     { // switch on digit location
