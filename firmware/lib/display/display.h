@@ -33,7 +33,7 @@ private:
     uint16_t dispData;
 
     // Lamps
-    bool AM, PM, highSpecLED, captureLED, mhz15, mhz10, mhz5, dataLED;
+    bool AM, PM, highSpecLED, captureLED, mhz15, mhz10, mhz5, dataLED = true;
 
     uint8_t buildTimeData(uint8_t digit, uint8_t position);
     uint8_t buildStatusData(bool AMLED, bool PMLED, bool hiSpecLED, bool captureLED, bool mhz15LED, bool mhz10LED, bool mhz5LED, bool dataLED);
