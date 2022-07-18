@@ -47,7 +47,7 @@ void Display::updateBoard()
 
     digitalWrite(segEnablePin, 0);
     digitalWrite(latchPin, 0);
-    shiftOut(dataPin, clockPin, dispData);
+    shiftOut(dataPin, clockPin, MSBFIRST, dispData);
     digitalWrite(latchPin, 1);
     digitalWrite(segEnablePin, 1);
 };
@@ -78,7 +78,11 @@ void Display::setTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tent
         dispData = buildTimeData(tenths, 6);
     }
 };
-void Display::setMeridan(bool AM, bool PM){};
-void Display::setHighSpec(bool highSpec){};
-void Display::setCapture(bool capture){};
+void Display::setMeridan(bool _AM, bool _PM)
+{
+    AM = _AM;
+    PM = _PM;
+};
+void Display::setHighSpec(bool highSpec) { highSpecLED = highSpec; };
+void Display::setCapture(bool capture) { captureLED = capture; };
 void Display::setDrift(Drift drift){};

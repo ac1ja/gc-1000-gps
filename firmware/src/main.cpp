@@ -109,17 +109,16 @@ void syncCheck()
 void updateBoard(void)
 {
   // read the status of comm pins
-  dataLED = !digitalRead(debugSerialCheck);  // if there is data on the serial line
-  captureLED = !digitalRead(gpsSerialCheck); // if the gps is being read from
-  highSpecLED = hasTimeBeenSet;              // if the time has been locked in/synced to the rtc
+  dataLED = !digitalRead(debugSerialCheck);         // if there is data on the serial line
+  display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
+  display.setHighSpec(hasTimeBeenSet);              // if the time has been locked in/synced to the rtc
 
   display.setTime(getUTCOffsetHours(hour()),
                   getUTCOffsetMinutes(minute()),
                   second(),
                   (((millis() - lastMillis) / 100) % 10));
 
-  display.updateBoard();
-
+  display.setMeridan(getAM(hour()), !getAM(hour()));
   // AM = getAM(hour());
   // PM = !AM;
 
@@ -137,6 +136,8 @@ void updateBoard(void)
 
   // // if (localTens < 1)
   // //   dataLED = true;
+
+  display.updateBoard();
 }
 
 void setup()
