@@ -13,7 +13,7 @@
 #include "buildData.h"
 #include "shiftMSBOut.h"
 
-uint8_t Display::buildTimeData(uint8_t digit, uint8_t position) { return (digit + (position << 4)); };
+uint8_t Display::getDigitByte(uint8_t digit, uint8_t position) { return (digit + (position << 4)); };
 
 uint8_t Display::buildStatusData(bool AMLED, bool PMLED, bool hiSpecLED, bool captureLED, bool mhz15LED, bool mhz10LED, bool mhz5LED, bool dataLED)
 {
@@ -58,25 +58,25 @@ void Display::setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t 
     switch (currentSegment)
     { // switch on digit location
     case 0:
-        dispData = buildTimeData(hour / 10, 0);
+        dispData = getDigitByte(hour / 10, 0);
         break;
     case 1:
-        dispData = buildTimeData(hour % 10, 1);
+        dispData = getDigitByte(hour % 10, 1);
         break;
     case 2:
-        dispData = buildTimeData(minute / 10, 2);
+        dispData = getDigitByte(minute / 10, 2);
         break;
     case 3:
-        dispData = buildTimeData(minute % 10, 3);
+        dispData = getDigitByte(minute % 10, 3);
         break;
     case 4:
-        dispData = buildTimeData(second / 10, 4);
+        dispData = getDigitByte(second / 10, 4);
         break;
     case 5:
-        dispData = buildTimeData(second % 10, 5);
+        dispData = getDigitByte(second % 10, 5);
         break;
     case 6:
-        dispData = buildTimeData(tenths, 6);
+        dispData = getDigitByte(tenths, 6);
     }
 };
 void Display::setMeridan(bool _AM, bool _PM)

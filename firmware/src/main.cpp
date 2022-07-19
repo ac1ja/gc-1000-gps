@@ -21,7 +21,7 @@
 #include "buildData.h"
 #include "timezones.h"
 
-// timezone
+// Timezone
 TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, -240}; // Daylight time = UTC - 4 hours TODO: Changeme
 TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, -300};  // Standard time = UTC - 5 hours TODO: Changeme
 Timezone dipTZ(dipDST, dipSTD);
@@ -30,19 +30,22 @@ TimeChangeRule *tcr; // pointer telling us where the TZ abbrev and offset is
 // Display
 Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
 
-unsigned long lastMillis;
-volatile bool hasTimeBeenSet;
+// Hi-Spec and time age
+const uint16_t hiSpecMaxAge = 30000; // 30 Seconds
+unsigned long lastMillis;            // How long ago was time set
+volatile bool hasTimeBeenSet;        // Has the time been set
 
+// PPS sync flag
 volatile int pps = 0;
 
+// Time and time vars
 volatile byte storedMonth, storedDay, storedHour, storedMinute, storedSecond, storedHundredths;
 volatile int storedYear;
 volatile unsigned long storedAge; // same as fixed_afe in docs, time since fix.
 volatile bool syncReady;
-
 volatile byte lastMinute;
 
-// dip switch settings
+// Dip switch settings
 bool newSettingsFlag = false;                                 // true whenever settings have been changed
 unsigned int DIPsum;                                          // holds the sum value of all switches to check for when settings are changed
 const byte TimeZoneInputs[] = {DIP0, DIP1, DIP2, DIP3, DIP4}; // what pins to use for the time zone inputs
@@ -52,8 +55,8 @@ const byte ClockFormatInput = DIP2;                           // what pin to use
 long dipcheck = 0; // a counter to keep track of clock cycles before next update
 
 // display lights
-byte debugSerialCheck = 1; // debug activity pin
-byte gpsSerialCheck = 15;  // gps activity pin
+const byte debugSerialCheck = 1; // debug activity pin
+const byte gpsSerialCheck = 15;  // gps activity pin
 
 // hardware objects
 TinyGPS gps;
@@ -120,9 +123,9 @@ void syncCheck()
 void updateBoard(void)
 {
   // read the status of comm pins
-  display.setData(!digitalRead(debugSerialCheck));  // if there is data on the serial line
-  display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
-  display.setHighSpec(hasTimeBeenSet);              // if the time has been locked in/synced to the rtc
+  display.setData(!digitalRead(debugSerialCheck));           // if there is data on the serial line
+  display.setCapture(!digitalRead(gpsSerialCheck));          // if the gps is being read from
+  display.setHighSpec(millis() - lastMillis < hiSpecMaxAge); // if the time has been locked in/synced to the rtc
 
   display.setDispTime(getUTCOffsetHours(hour()),
                       getUTCOffsetMinutes(minute()),
@@ -160,7 +163,7 @@ void setup()
   Serial.println("Started RTC.");
   delay(500);
 
-  lastMillis = millis();
+  lastMillis = millis() + hiSpecMaxAge;
   hasTimeBeenSet = false;
 
   // clear screen

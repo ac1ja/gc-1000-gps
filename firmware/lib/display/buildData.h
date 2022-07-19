@@ -25,7 +25,7 @@ uint8_t buildStatusData(bool AMLED, bool PMLED, bool hiSpecLED, bool captureLED,
   return (statusByte);
 }
 
-uint8_t buildTimeData(uint8_t digit, uint8_t position)
+uint8_t getDigitByte(uint8_t digit, uint8_t position)
 {
   return (digit + (position << 4));
 }

@@ -13,6 +13,6 @@
 //   return (statusByte);
 // }
 
-// byte buildTimeData(byte digit, byte position) {
+// byte getDigitByte(byte digit, byte position) {
 //   return(digit + (position << 4));
 // }
