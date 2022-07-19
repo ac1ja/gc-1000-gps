@@ -31,7 +31,7 @@ TimeChangeRule *tcr; // pointer telling us where the TZ abbrev and offset is
 Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
 
 // Hi-Spec and time age
-const uint16_t hiSpecMaxAge = 30000; // 30 Seconds
+const uint16_t hiSpecMaxAge = 60000; // 60 Seconds
 unsigned long lastMillis;            // How long ago was time set
 volatile bool hasTimeBeenSet;        // Has the time been set
 
