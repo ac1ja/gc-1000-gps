@@ -32,7 +32,7 @@ Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
 
 // Hi-Spec and time age
 const uint16_t hiSpecMaxAge = 60000; // 60 Seconds
-unsigned long lastMillis;            // How long ago was time set
+unsigned long lastTimeSync;          // How long ago was time set
 volatile bool hasTimeBeenSet;        // Has the time been set
 
 // PPS sync flag
@@ -108,7 +108,7 @@ void syncCheck()
 
       // rtc.adjust(dipTZ.toLocal(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond).unixtime())); // adjust the time to the tz.tolocal conversion of gps stored data
       adjustTime(1); // 1pps signal = start of next second
-      lastMillis = millis();
+      lastTimeSync = millis();
       hasTimeBeenSet = true;     // Time has been set
       newSettingsFlag = true;    // New settings are in place
       syncReady = false;         // Reset syncReady flag
@@ -123,14 +123,14 @@ void syncCheck()
 void updateBoard(void)
 {
   // read the status of comm pins
-  display.setData(!digitalRead(debugSerialCheck));           // if there is data on the serial line
-  display.setCapture(!digitalRead(gpsSerialCheck));          // if the gps is being read from
-  display.setHighSpec(millis() - lastMillis < hiSpecMaxAge); // if the time has been locked in/synced to the rtc
+  display.setData(!digitalRead(debugSerialCheck));             // if there is data on the serial line
+  display.setCapture(!digitalRead(gpsSerialCheck));            // if the gps is being read from
+  display.setHighSpec(millis() - lastTimeSync < hiSpecMaxAge); // if the time has been locked in/synced to the rtc
 
   display.setDispTime(getUTCOffsetHours(hour()),
                       getUTCOffsetMinutes(minute()),
                       second(),
-                      (((millis() - lastMillis) / 100) % 10));
+                      (((millis() - lastTimeSync) / 100) % 10));
 
   display.setMeridan(getAM(hour()), !getAM(hour()));
 
@@ -163,7 +163,7 @@ void setup()
   Serial.println("Started RTC.");
   delay(500);
 
-  lastMillis = millis() + hiSpecMaxAge;
+  lastTimeSync = millis() + hiSpecMaxAge;
   hasTimeBeenSet = false;
 
   // clear screen
