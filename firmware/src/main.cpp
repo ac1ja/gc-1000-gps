@@ -12,6 +12,7 @@
 #include <Timezone.h>        // https://github.com/JChristensen/Timezone
 #include <EnableInterrupt.h> // https://github.com/GreyGnome/EnableInterrupt
 #include <TimerOne.h>        // https://github.com/PaulStoffregen/TimerOne
+#include <avr/wdt.h>
 
 // Our libs
 #include "display.h"
@@ -186,10 +187,16 @@ void setup()
   syncReady = false;
   hasTimeBeenSet = false;
   lastMinute = -1;
+
+  // Configure watchdog
+  wdt_enable(WDTO_1S);
 }
 
 void loop()
 {
+  // Trigger Watchdog
+  wdt_reset();
+
   if (!hasTimeBeenSet)
   { // if we have not yet set the time
     // Serial.print("Num satelites: "); Serial.println(gps.satellites());
