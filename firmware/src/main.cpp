@@ -136,6 +136,9 @@ void updateBoard(void)
   display.setMeridan(getAM(hour()), !getAM(hour()));
 
   display.updateBoard();
+
+  // Trigger Watchdog
+  wdt_reset();
 }
 
 void setup()
@@ -194,9 +197,6 @@ void setup()
 
 void loop()
 {
-  // Trigger Watchdog
-  wdt_reset();
-
   if (!hasTimeBeenSet)
   { // if we have not yet set the time
     // Serial.print("Num satelites: "); Serial.println(gps.satellites());
