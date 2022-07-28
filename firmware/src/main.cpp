@@ -147,7 +147,6 @@ void setup()
   Serial.begin(115200); // USB (debug)
   Serial3.begin(9600);  // GPS
   Serial.println("Serial started.");
-  delay(500);
 
   // inatialize input pins
   pinMode(GPS_PPS_PIN, INPUT); // GPS PPS signal
@@ -160,12 +159,10 @@ void setup()
   pinMode(debugSerialCheck, INPUT);
   pinMode(gpsSerialCheck, INPUT);
   Serial.println("Initalized all I/O pins");
-  delay(500);
 
   // start rtc
   rtc.begin();
   Serial.println("Started RTC.");
-  delay(500);
 
   lastTimeSync = millis() + hiSpecMaxAge;
   hasTimeBeenSet = false;
@@ -174,17 +171,11 @@ void setup()
   // dataOut = 0;
   // shiftOut(DATA_PIN, CLOCK_PIN, dataOut);
 
-  // initalize inturrupts
-  Timer1.initialize(3000);             // Cycle every 3000μs
-  Timer1.attachInterrupt(updateBoard); // Attach an interrupt to callback updateBoard()
-
   enableInterrupt(GPS_PPS_PIN, isrPPS, RISING); // Attach interrupt to gps PPS pin
   Serial.println("Initalized all inturrupts");
-  delay(500);
 
   // print out some information about the software we're running.
   Serial.println(MOTD);
-  delay(500);
 
   // don't sync the time yet...
   syncReady = false;
@@ -193,6 +184,10 @@ void setup()
 
   // Configure watchdog
   wdt_enable(WDTO_1S);
+
+  // initalize inturrupts
+  Timer1.initialize(3000);             // Cycle every 3000μs
+  Timer1.attachInterrupt(updateBoard); // Attach an interrupt to callback updateBoard()
 }
 
 void loop()
