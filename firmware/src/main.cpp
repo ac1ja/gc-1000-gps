@@ -136,9 +136,6 @@ void updateBoard(void)
   display.setMeridan(getAM(hour()), !getAM(hour()));
 
   display.updateBoard();
-
-  // Trigger Watchdog
-  wdt_reset();
 }
 
 void setup()
@@ -183,7 +180,7 @@ void setup()
   lastMinute = -1;
 
   // Configure watchdog
-  wdt_enable(WDTO_1S);
+  wdt_enable(WDTO_2S);
 
   // initalize inturrupts
   Timer1.initialize(3000);             // Cycle every 3000μs
@@ -280,4 +277,7 @@ void loop()
     }
     dipcheck = 0; // Return dipcheck to 0
   }
+
+  // Trigger Watchdog
+  wdt_reset();
 }
