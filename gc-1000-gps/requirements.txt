@@ -1,6 +1,0 @@
-TinyGPS
-RTClib
-Time
-Timezone
-EnableInterrupt
-TimerOne
