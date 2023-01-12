@@ -5,13 +5,17 @@ Requires arduino, arduino-cli, make
 
 Install build deps
 ```
-sudo apt install build-essential make arduino
+# Ubuntu/Debian
+sudo apt install build-essential make
+
+# Platformio install script, see https://docs.platformio.org/en/latest/core/installation/methods/installer-script.html
+python3 -c "$(curl -fsSL https://raw.githubusercontent.com/platformio/platformio/master/scripts/get-platformio.py)"
 ```
 
 Clone and build the rep
 ```
 git clone https://gitlab.com/silvertech-iot/gc-1000-gps.git
-cd gc-1000-gps
+cd gc-1000-gps/firmware
 make
 make upload
 ```
@@ -19,8 +23,8 @@ make upload
 Debugging notes
 ```
 git clone https://gitlab.com/silvertech-iot/gc-1000-gps.git
-cd gc-1000-gps
-make upload && minicom -D /dev/ttyACM0 -b 115200
+cd gc-1000-gps/firmware
+make debug
 ```
 
 See docs for full instruction! https://gc-1000-gps.readthedocs.io/en/latest/

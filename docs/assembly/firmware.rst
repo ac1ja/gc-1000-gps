@@ -46,7 +46,7 @@ Open a terminal in the extracted repository.
 
 .. code-block:: shell
 
-    cd gc-1000-gps
+    cd firmware
     make
     make upload
 
@@ -61,7 +61,7 @@ Start by cloning the repo down, then CD to the build location and build the code
 .. code-block:: shell
 
     git clone https://github.com/ac1ja/gc-1000-gps
-    cd gc-1000-gps/gc-1000-gps
+    cd gc-1000-gps/firmware
     make
     make upload
 
