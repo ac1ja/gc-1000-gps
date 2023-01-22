@@ -1,18 +1,15 @@
 Getting Started
 ===============
 
-The GC-1000-GPS is a custom drop-in board that aims to upgrade your existing GC-1000 heathkit clock, allowing it to use GPS and continue to provide time acurate function!
-
-Where to get a GC-1000-GPS kit?
--------------------------------
-
-Not sure yet.
+The GC-1000-GPS is a drop-in replacement board for the GC-1000 radio disciplined clock, giving
+some life and utility back to your super accurate radio synchronized clock!
 
 
 Where to start?
 ---------------
 
-Once you have a kit, check out the :ref:`Assemble the GC-1000-GPS` section to begin the process of installing and configuring your board for the first time!
+Once you have a kit, check out the :ref:`Assemble the GC-1000-GPS` section 
+to begin the process of installing and configuring your board for the first time!
 
 
 Extra tidbits
