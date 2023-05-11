@@ -12,7 +12,6 @@
 
 // Libs, see platformio.ini
 #include <Arduino_FreeRTOS.h>
-#include <TinyGPS.h>         // https://github.com/mikalhart/TinyGPS
 #include <RTClib.h>          // https://github.com/adafruit/RTClib
 #include <TimeLib.h>         // https://github.com/PaulStoffregen/Time
 #include <EnableInterrupt.h> // https://github.com/GreyGnome/EnableInterrupt
@@ -33,36 +32,11 @@
 // Display
 Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
 
-// Hi-Spec and time age
-const uint16_t hiSpecMaxAge = 60000; // 60 Seconds
-unsigned long lastTimeSync;          // How long ago was time set
-volatile bool hasTimeBeenSet;        // Has the time been set
-
-// PPS sync flag
-volatile int pps = 0;
-
-// Time and time vars
-uint8_t storedMonth, storedDay, storedHour, storedMinute, storedSecond, storedHundredths;
-int16_t storedYear;
-uint32_t storedAge; // same as fixed_afe in docs, time since fix.
-volatile bool syncReady;
-volatile byte lastMinute;
-
-// Dip switch settings
-bool newSettingsFlag = false;                                 // true whenever settings have been changed
-unsigned int DIPsum;                                          // holds the sum value of all switches to check for when settings are changed
-const byte TimeZoneInputs[] = {DIP0, DIP1, DIP2, DIP3, DIP4}; // what pins to use for the time zone inputs
-int16_t timeZone;                                             // the current timezone
-const byte ClockFormatInput = DIP2;                           // what pin to use to check if 24 or 12hr format
-
-long dipcheck = 0; // a counter to keep track of clock cycles before next update
-
 // display lights
 const byte debugSerialCheck = 1; // debug activity pin
 const byte gpsSerialCheck = 15;  // gps activity pin
 
 // hardware objects
-TinyGPS gps;
 RTC_DS3231 rtc;
 
 time_t prevDisplay = 0; // when the digital clock was displayed
@@ -207,88 +181,6 @@ void setup()
 
 void loop()
 {
-  if (!hasTimeBeenSet)
-  { // if we have not yet set the time
-    // Serial.print("Num satelites: "); Serial.println(gps.satellites());
-    // Serial.println("Attempting top set time");
-    while (Serial3.available())
-    {
-      if (gps.encode(Serial3.read()))
-      { // process gps messages
-        // new data...let's crack the date/time
-        gps.crack_datetime(&storedYear, &storedMonth, &storedDay, &storedHour, &storedMinute, &storedSecond, &storedHundredths, &storedAge);
-        Log.verbose(F("Cracked a new time! Second is %d, Age is %d" CR), storedSecond, storedAge);
-        if (storedAge < 1000)
-        {
-          // it's good data (not old)...so, let's use it
-          syncReady = true;
-        }
-        else
-        {
-          Log.warningln("Could not set time, Data too old");
-        }
-      }            // else {Serial.println("Could not set time, no data to read");}
-      syncCheck(); // check for a sync after attempting to crack a new data stream TODO: we may not need to check here if the last crack failed.
-    }
-    syncCheck(); // check for a sync after we've finished running through all available GPS data TODO: we may not need to check here if the last crack failed.
-  }
-
-  // check if its time to check for the dip settings TODO: move this to a scheduled task, see branch task-scheduler
-  if (dipcheck++ > 80000)
-  { // check if 80000 cycles have passed since last updating the dips
-    // check if any settings have changed since last time
-    unsigned int _DIPsum = 0; // create a temporary place to store out dipswitch values
-    byte DIPA = ~PINA;        // ~ to invert
-    byte DIPC = ~PINC;        // ~ to invert
-    _DIPsum = DIPA + DIPC;
-
-    // if any of the switches were changed, update everything
-    if (_DIPsum != DIPsum || newSettingsFlag)
-    {
-      Log.verbose(F("Updating dip switches, DIPA set to %b, DIPC set to %b" CR), DIPA, DIPC);
-
-      // update timezone
-      unsigned int _timeZone = 0; // clearout a temporary int of memory
-      for (byte i = 0; i < sizeof TimeZoneInputs / sizeof TimeZoneInputs[0]; i++)
-      {                                               // read every byte in the dipswitch list
-        int value = bitRead(DIPC, TimeZoneInputs[i]); // read byte (0001, 0000)
-        _timeZone = _timeZone + (value << i);         // shif byte to its correct magnitude
-      }
-
-      timeZone = (_timeZone - 12) * 60; // store the new timezone value, offset by -12 (so we dont need to use a signed dip switch)
-
-      // update clock format
-      if (digitalRead(ClockFormatInput))
-      {
-        clockFormat = 24;
-      }
-      else
-      {
-        clockFormat = 12;
-      }
-
-      // timezone
-      // TODO: Most of these timezone values are HARDCODED until we find a way to easily craft dip switches that can read them.
-      // TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, timeZone + 60}; // timezone offset (hrs) converted to minutes, offset by 1 hr
-      // TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone};       // timezone offset (hrs) converted to minutes
-      // Timezone dipTZ(dipDST, dipSTD);
-
-      // dipTZ.toLocal(now(), &tcr); // setup local time (this can take thousands of cycles to compute)
-
-      // utcMinuteOffset = tcr->offset % 60;                   // strip out every full hour offset
-      // utcHourOffset = (tcr->offset - utcMinuteOffset) / 60; // the full hour offset
-
-      Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), _timeZone, clockFormat, utcHourOffset);
-
-      Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset);
-
-      // Reset flags and sums
-      newSettingsFlag = false;
-      DIPsum = _DIPsum;
-    }
-    dipcheck = 0; // Return dipcheck to 0
-  }
-
-  // Trigger Watchdog
+  // Trigger Watchdog TODO: Move me to an idle task!
   wdt_reset();
 }
