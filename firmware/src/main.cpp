@@ -27,6 +27,8 @@
 #include "boardConfig.h"
 #include "buildData.h"
 #include "timezones.h"
+#include "gps.h"
+#include "switches.h"
 
 // Display
 Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
@@ -185,9 +187,22 @@ void setup()
   // Configure watchdog
   wdt_enable(WDTO_2S);
 
-  // initalize inturrupts
+  // Initialize interrupts
   Timer1.initialize(3000);             // Cycle every 3000μs
   Timer1.attachInterrupt(updateBoard); // Attach an interrupt to callback updateBoard()
+
+  // Configure Tasks
+  xTaskCreate(
+      TaskReadSwitches, "ReadSwitches",
+      128,     // Stack size
+      NULL, 2, // Priority
+      NULL);
+
+  xTaskCreate(
+      TaskGPSCommunicate, "GPSCommunicate",
+      128,     // Stack size
+      NULL, 2, // Priority
+      NULL);
 }
 
 void loop()
