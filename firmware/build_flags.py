@@ -57,5 +57,8 @@ motd = f"\\r\\nStarting gc-1000-gps.\\r\\nThis software expects your terminal to
 
 print(f"-DMOTD='\"{motd}\"'")
 
+# For FreeRTOS
+print("-DportUSE_WDTO=WDTO_15MS")
+
 # This is for the boardConfig
 print("-I include/v2_Board")

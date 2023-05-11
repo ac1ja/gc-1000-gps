@@ -11,10 +11,10 @@
 #include "avr8-stub.h"
 
 // Libs, see platformio.ini
+#include <Arduino_FreeRTOS.h>
 #include <TinyGPS.h>         // https://github.com/mikalhart/TinyGPS
 #include <RTClib.h>          // https://github.com/adafruit/RTClib
 #include <TimeLib.h>         // https://github.com/PaulStoffregen/Time
-#include <Timezone.h>        // https://github.com/JChristensen/Timezone
 #include <EnableInterrupt.h> // https://github.com/GreyGnome/EnableInterrupt
 #include <TimerOne.h>        // https://github.com/PaulStoffregen/TimerOne
 #include <avr/wdt.h>
@@ -27,12 +27,6 @@
 #include "boardConfig.h"
 #include "buildData.h"
 #include "timezones.h"
-
-// Timezone
-TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, -240}; // Daylight time = UTC - 4 hours TODO: Changeme
-TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, -300};  // Standard time = UTC - 5 hours TODO: Changeme
-Timezone dipTZ(dipDST, dipSTD);
-TimeChangeRule *tcr; // pointer telling us where the TZ abbrev and offset is
 
 // Display
 Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
@@ -260,14 +254,14 @@ void loop()
 
       // timezone
       // TODO: Most of these timezone values are HARDCODED until we find a way to easily craft dip switches that can read them.
-      TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, timeZone + 60}; // timezone offset (hrs) converted to minutes, offset by 1 hr
-      TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone};       // timezone offset (hrs) converted to minutes
-      Timezone dipTZ(dipDST, dipSTD);
+      // TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, timeZone + 60}; // timezone offset (hrs) converted to minutes, offset by 1 hr
+      // TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone};       // timezone offset (hrs) converted to minutes
+      // Timezone dipTZ(dipDST, dipSTD);
 
-      dipTZ.toLocal(now(), &tcr); // setup local time (this can take thousands of cycles to compute)
+      // dipTZ.toLocal(now(), &tcr); // setup local time (this can take thousands of cycles to compute)
 
-      utcMinuteOffset = tcr->offset % 60;                   // strip out every full hour offset
-      utcHourOffset = (tcr->offset - utcMinuteOffset) / 60; // the full hour offset
+      // utcMinuteOffset = tcr->offset % 60;                   // strip out every full hour offset
+      // utcHourOffset = (tcr->offset - utcMinuteOffset) / 60; // the full hour offset
 
       Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), _timeZone, clockFormat, utcHourOffset);
 
