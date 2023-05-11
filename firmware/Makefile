@@ -31,6 +31,7 @@ deep:
 
 clean:
 	pio run -t clean
+	git clean -fdx
 
 lint:
 	pio check
