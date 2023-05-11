@@ -1,9 +1,11 @@
-// arduinio controlled Heathkit GC-1000 clock display driver
-// licensed under GNU GPL v3.0, https://www.gnu.org/licenses/gpl.html
-//
-// Nick Soggu
-// created march 2020
-// revised for arduino mega on 2021
+/**
+ * @brief arduinio controlled Heathkit GC-1000 clock display driver
+ * licensed under GNU GPL v3.0, https://www.gnu.org/licenses/gpl.html
+ *
+ * Nick Soggu
+ * created march 2020
+ * revised for arduino mega on 2021
+ */
 
 #include "Arduino.h"
 #include "avr8-stub.h"
