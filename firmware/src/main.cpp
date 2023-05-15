@@ -45,9 +45,6 @@ byte pos = 0;
 bool AM, PM;
 
 byte localHour, localMinute, localSecond, localTens;
-byte dataLED, captureLED, highSpecLED = false;
-
-bool mhz5, mhz10, mhz15;
 
 void isrPPS()
 {
@@ -169,7 +166,7 @@ void setup()
   xTaskCreate(
       TaskReadSwitches, "ReadSwitches",
       128,     // Stack size
-      NULL, 2, // Priority
+      NULL, 1, // Priority
       NULL);
 
   xTaskCreate(

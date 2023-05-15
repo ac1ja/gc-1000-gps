@@ -41,5 +41,9 @@ test:
 
 debug: flash monitor
 
+remote-debug:
+	pio remote --agent silvertech run --target upload
+	pio remote device monitor
+
 monitor:
 	pio device monitor --filter=direct --filter=time
