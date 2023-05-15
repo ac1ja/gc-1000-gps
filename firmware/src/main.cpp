@@ -8,7 +8,6 @@
  */
 
 #include "Arduino.h"
-#include "avr8-stub.h"
 
 // Libs, see platformio.ini
 #include <Arduino_FreeRTOS.h>
@@ -16,7 +15,7 @@
 #include <TimeLib.h>         // https://github.com/PaulStoffregen/Time
 #include <EnableInterrupt.h> // https://github.com/GreyGnome/EnableInterrupt
 #include <TimerOne.h>        // https://github.com/PaulStoffregen/TimerOne
-#include <avr/wdt.h>
+// #include <avr/wdt.h>
 #include <ArduinoLog.h>
 
 // Our libs
@@ -26,80 +25,32 @@
 #include "boardConfig.h"
 #include "buildData.h"
 #include "timezones.h"
-#include "gps.h"
-#include "switches.h"
+
+// hardware objects
+RTC_DS3231 rtc;
 
 // Display
 Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
+
+#include "switches.h"
+#include "gps.h"
 
 // display lights
 const byte debugSerialCheck = 1; // debug activity pin
 const byte gpsSerialCheck = 15;  // gps activity pin
 
-// hardware objects
-RTC_DS3231 rtc;
-
 time_t prevDisplay = 0; // when the digital clock was displayed
 
-byte pos = 0;
 bool AM, PM;
 
 byte localHour, localMinute, localSecond, localTens;
 
-void isrPPS()
-{
-  // flag the 1pps input signal
-  pps = 1;
-
-  // if minute has changed...allow a GPS sync to happen
-  if (lastMinute != minute())
-    hasTimeBeenSet = false;
-}
-
-void syncCheck()
-{
-  if (pps)
-  {
-    if (syncReady && !hasTimeBeenSet)
-    {
-      setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear); // Set the time? This puts this time in local
-      rtc.adjust(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond));
-
-      // Not great but maybe could be improved, this whole time-critical section needs to be simplified, timezones make it so hard.
-      byte drift = storedSecond - rtc.now().second();
-      if (abs(drift) < 1)
-      {
-        display.setDrift(display.NONE);
-      }
-      else if (drift > 1)
-      {
-        display.setDrift(display.SLOW);
-      }
-      else
-      {
-        display.setDrift(display.FAST);
-      }
-
-      // rtc.adjust(dipTZ.toLocal(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond).unixtime())); // adjust the time to the tz.tolocal conversion of gps stored data
-      adjustTime(1); // 1pps signal = start of next second
-      lastTimeSync = millis();
-      hasTimeBeenSet = true;     // Time has been set
-      newSettingsFlag = true;    // New settings are in place
-      syncReady = false;         // Reset syncReady flag
-      lastMinute = storedMinute; // Last minute is now the stored minute
-
-      Log.verboseln("Synced!");
-    }
-  }
-  pps = 0;
-}
-
 void updateBoard(void)
 {
   // read the status of comm pins
-  display.setData(!digitalRead(debugSerialCheck));             // if there is data on the serial line
-  display.setCapture(!digitalRead(gpsSerialCheck));            // if the gps is being read from
-  display.setHighSpec(millis() - lastTimeSync < hiSpecMaxAge); // if the time has been locked in/synced to the rtc
+  display.setData(!digitalRead(debugSerialCheck));                                         // if there is data on the serial line
+  display.setCapture(displayPPS);                                                          // if the gps is being read from
+  display.setHighSpec(lastTimeSync == 0 ? false : millis() - lastTimeSync < hiSpecMaxAge); // if the time has been locked in/synced to the rtc
 
   display.setDispTime(getUTCOffsetHours(hour()),
                       getUTCOffsetMinutes(minute()),
@@ -137,7 +88,7 @@ void setup()
   rtc.begin();
   Log.noticeln("Started RTC.");
 
-  lastTimeSync = millis() + hiSpecMaxAge;
+  lastTimeSync = 0;
   hasTimeBeenSet = false;
 
   // clear screen
@@ -155,8 +106,11 @@ void setup()
   hasTimeBeenSet = false;
   lastMinute = -1;
 
+  // Load prev RTC time
+  setTime(rtc.now().unixtime());
+
   // Configure watchdog
-  wdt_enable(WDTO_2S);
+  // wdt_enable(WDTO_2S); // In the future, consider using a different internal timer to keep track of the WDT
 
   // Initialize interrupts
   Timer1.initialize(3000);             // Cycle every 3000μs
@@ -170,8 +124,14 @@ void setup()
       NULL);
 
   xTaskCreate(
-      TaskGPSCommunicate, "GPSCommunicate",
+      TaskBlinkOnPPS, "BlinkOnPPS",
       128,     // Stack size
+      NULL, 1, // Priority
+      NULL);
+
+  xTaskCreate(
+      TaskGPSCommunicate, "GPSCommunicate",
+      4096,    // Stack size
       NULL, 2, // Priority
       NULL);
 }
@@ -179,5 +139,5 @@ void setup()
 void loop()
 {
   // Trigger Watchdog TODO: Move me to an idle task!
-  wdt_reset();
+  // wdt_reset();
 }
