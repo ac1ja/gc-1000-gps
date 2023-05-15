@@ -25,9 +25,9 @@ To build from a release, go to the releases_ page on our gitlab, and select the 
 
 .. image:: images/releases_screenshot.png
   :width: 400
-  :alt: Releases sreenshot
+  :alt: Releases screenshot
 
-Download a copy of the sourcecode and extract it to your computer.
+Download a copy of the source code and extract it to your computer.
 
 Open a terminal in the extracted repository.
 
@@ -47,7 +47,7 @@ Start by cloning the repo down, then CD to the build location and build the code
 
 .. code-block:: shell
 
-    git clone https://gitlab.com/KenwoodFox/gc-1000-gps
+    git clone https://github.com/ac1ja/gc-1000-gps.git
     cd gc-1000-gps/gc-1000-gps
     make
     make upload
@@ -60,5 +60,5 @@ If you get an error such as ``avrdude: ser_open(): can't open device "unknown": 
 If you get an error such as ``command not found: arduino-cli`` make sure you installed all dependencies_. 
 
 
-.. _dependencies: <https://gitlab.com/KenwoodFox/gc-1000-gps#setup>
-.. _releases: <https://gitlab.com/KenwoodFox/gc-1000-gps/-/releases>
+.. _dependencies: <https://github.com/ac1ja/gc-1000-gps#setup>
+.. _releases: <https://github.com/ac1ja/gc-1000-gps/releases>

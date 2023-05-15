@@ -14,5 +14,7 @@ _build
 # Doc artifacts
 _*/
 
-# vscode
+# Dev artifacts
 .vscode
+.pio
+Pipfile*
