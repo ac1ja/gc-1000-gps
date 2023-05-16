@@ -50,7 +50,9 @@ void TaskSerialInstruction(void *pvParameters)
                 index = 0;
             }
         }
-
-        vTaskDelay(8);
+        else
+        {
+            vTaskDelay(8);
+        }
     }
 }
