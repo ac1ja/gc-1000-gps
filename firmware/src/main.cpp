@@ -34,6 +34,7 @@ Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
 
 #include "switches.h"
 #include "gps.h"
+#include "serial.h"
 
 // display lights
 const byte debugSerialCheck = 1; // debug activity pin
@@ -127,6 +128,12 @@ void setup()
       TaskBlinkOnPPS, "BlinkOnPPS",
       128,     // Stack size
       NULL, 1, // Priority
+      NULL);
+
+  xTaskCreate(
+      TaskSerialInstruction, "SerialInstruction",
+      128,     // Stack size
+      NULL, 2, // Priority
       NULL);
 
   xTaskCreate(

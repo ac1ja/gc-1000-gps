@@ -84,7 +84,6 @@ void TaskGPSCommunicate(void *pvParameters)
 
         if (!hasTimeBeenSet)
         { // if we have not yet set the time
-            Log.verboseln("Num satellites: %d", gps.satellites());
             while (Serial3.available())
             {
                 if (gps.encode(Serial3.read()))

@@ -41,9 +41,13 @@ test:
 
 debug: flash monitor
 
-remote-debug:
-	pio remote --agent silvertech run --target upload
+remote-flash:
+	pio remote --agent silvertech-iot run --target upload
+
+remote-monitor: 
 	pio remote device monitor
+
+remote-debug: remote-flash remote-monitor
 
 monitor:
 	pio device monitor --filter=direct --filter=time

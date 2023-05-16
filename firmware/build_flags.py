@@ -55,6 +55,7 @@ if username == "root":
 
 motd = f"Starting gc-1000-gps.\\r\\nThis software expects your terminal to be VT100 Compatible,\\r\\n\\r\\nUsing version {revision}.\\r\\ncompiled on {today.strftime('%B %d, %Y')} by {username} using {host}.\\r\\n\\r\\n"
 
+print(f"-DVER='\"{revision}\"'")
 print(f"-DMOTD='\"{motd}\"'")
 
 # For FreeRTOS
