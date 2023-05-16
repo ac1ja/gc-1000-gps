@@ -1,0 +1,128 @@
+name: Hardware Workflow
+
+on:
+  push:
+    branches:
+      - "main"
+    tags:
+      - "*"
+  pull_request:
+    paths:
+      - "hardware/**"
+      - "docs/**"
+
+jobs:
+  KiCad_Hardware:
+    runs-on: ubuntu-latest
+    name: KiCad Hardware
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - uses: INTI-CMNB/KiBot@v2_k6
+        with:
+          # Config file
+          config: hardware/config.kibot.yaml
+          # Prefix for output in config file.
+          dir: _hardwareOutput
+
+          # Hardware Files
+          schema: "hardware/gc-1000-gps/gc-1000-gps.kicad_sch"
+          board: "hardware/gc-1000-gps/gc-1000-gps.kicad_pcb"
+
+      - name: upload results
+        uses: actions/upload-artifact@v2
+        with:
+          name: Board-Hardware
+          path: _hardwareOutput
+
+  make_docs:
+    runs-on: ubuntu-latest
+    name: Build Docs
+    needs: [KiCad_Hardware]
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+          architecture: x64
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # Do not cache
+      - run: sudo apt update && sudo apt install texlive-latex-recommended pdftk texlive-latex-extra texlive-pictures pandoc rename latexmk inkscape imagemagick
+
+      - name: Install requirements
+        run: pip install -r docs/requirements.txt
+
+      # Download artifacts from other builds
+      - uses: actions/download-artifact@v2
+        with:
+          name: Board-Hardware
+          path: _hardwareOutput
+
+        # Make the latex docs
+      - run: cd docs && make latexpdf
+
+        # Move the board manual
+      - run: mv docs/_build/latex/*.pdf docs/_build/latex/Board-Manual-Only.pdf
+
+        # Combine together
+      - run: pdftk docs/_build/latex/Board-Manual-Only.pdf _hardwareOutput/gc-1000-gps-schematic.pdf cat output docs/_build/latex/Board-Manual.pdf
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Board-Manual
+          path: docs/_build/latex/Board-Manual.pdf
+
+  publish:
+    # Only run on tags
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    name: Publish
+    needs: [make_docs, KiCad_Hardware]
+
+    steps:
+      # Be in our repo
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # Download artifacts
+      - uses: actions/download-artifact@v2
+        with:
+          name: Board-Manual
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: Board-Hardware
+
+      - run: mkdir -p _staging/
+
+      - run: cp *.pdf _staging/
+
+      - run: cp *.step _staging/
+
+      # Copy CDR, PDR
+      - run: cp Team\ Files/*.pdf _staging/
+
+      # Copy gerbers
+      - run: cp PCBWay/*.zip _staging/Board-$(git rev-parse --short HEAD)-PCBWay.zip
+      - run: cp JLCPCB/*.zip _staging/Board-$(git rev-parse --short HEAD)-JLCPCB.zip
+
+      - name: Upload Docs to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: "_staging/*"
+          tag: ${{ github.ref }}
+          overwrite: true
+          prerelease: true
+          body: "GC-1000-GPS, Automated with github ci/cd."
+          file_glob: true
