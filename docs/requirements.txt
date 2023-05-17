@@ -1,4 +1,7 @@
-sphinx = "*"
-sphinx-rtd-theme = "*"
-readthedocs-sphinx-search = "*"
-gitpython = "*"
+# Sphinx
+sphinx
+sphinx_rtd_theme
+readthedocs-sphinx-search
+
+# Other build
+GitPython
