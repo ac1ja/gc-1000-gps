@@ -18,7 +18,6 @@
 #include <EnableInterrupt.h> // https://github.com/GreyGnome/EnableInterrupt
 #include <TimerOne.h>        // https://github.com/PaulStoffregen/TimerOne
 #include <avr/wdt.h>
-#include <ArduinoLog.h>
 
 // Our libs
 #include "display.h"
@@ -121,7 +120,7 @@ void syncCheck()
       syncReady = false;         // Reset syncReady flag
       lastMinute = storedMinute; // Last minute is now the stored minute
 
-      Log.verboseln("Synced!");
+      // Log.verboseln("Synced!");
     }
   }
   pps = 0;
@@ -147,12 +146,12 @@ void updateBoard(void)
 void setup()
 {
   // initalize Serial interfaces
-  Serial.begin(115200); // USB (debug)
-  Serial3.begin(9600);  // GPS
+  debug_init();
+  Serial3.begin(9600); // GPS
 
   // Setup logging
-  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
-  Log.noticeln("Serial started.");
+  // Log.begin(LOG_LEVEL_VERBOSE, &Serial);
+  // Log.noticeln("Serial started.");
 
   // inatialize input pins
   pinMode(GPS_PPS_PIN, INPUT); // GPS PPS signal
@@ -164,11 +163,11 @@ void setup()
   PORTC = 0xFF; // ALl PORTC pins HIGH
   pinMode(debugSerialCheck, INPUT);
   pinMode(gpsSerialCheck, INPUT);
-  Log.noticeln("Initalized all I/O pins");
+  // Log.noticeln("Initalized all I/O pins");
 
   // start rtc
   rtc.begin();
-  Log.noticeln("Started RTC.");
+  // Log.noticeln("Started RTC.");
 
   lastTimeSync = millis() + hiSpecMaxAge;
   hasTimeBeenSet = false;
@@ -178,10 +177,10 @@ void setup()
   // shiftOut(DATA_PIN, CLOCK_PIN, dataOut);
 
   enableInterrupt(GPS_PPS_PIN, isrPPS, RISING); // Attach interrupt to gps PPS pin
-  Log.noticeln("Initalized all inturrupts");
+  // Log.noticeln("Initalized all inturrupts");
 
   // print out some information about the software we're running.
-  Log.noticeln(MOTD);
+  // Log.noticeln(MOTD);
 
   // don't sync the time yet...
   syncReady = false;
@@ -208,7 +207,7 @@ void loop()
       { // process gps messages
         // new data...let's crack the date/time
         gps.crack_datetime(&storedYear, &storedMonth, &storedDay, &storedHour, &storedMinute, &storedSecond, &storedHundredths, &storedAge);
-        Log.verbose(F("Cracked a new time! Second is %d, Age is %d" CR), storedSecond, storedAge);
+        // Log.verbose(F("Cracked a new time! Second is %d, Age is %d" CR), storedSecond, storedAge);
         if (storedAge < 1000)
         {
           // it's good data (not old)...so, let's use it
@@ -216,7 +215,7 @@ void loop()
         }
         else
         {
-          Log.warningln("Could not set time, Data too old");
+          // Log.warningln("Could not set time, Data too old");
         }
       }            // else {Serial.println("Could not set time, no data to read");}
       syncCheck(); // check for a sync after attempting to crack a new data stream TODO: we may not need to check here if the last crack failed.
@@ -236,7 +235,7 @@ void loop()
     // if any of the switches were changed, update everything
     if (_DIPsum != DIPsum || newSettingsFlag)
     {
-      Log.verbose(F("Updating dip switches, DIPA set to %b, DIPC set to %b" CR), DIPA, DIPC);
+      // Log.verbose(F("Updating dip switches, DIPA set to %b, DIPC set to %b" CR), DIPA, DIPC);
 
       // update timezone
       unsigned int _timeZone = 0; // clearout a temporary int of memory
@@ -269,9 +268,9 @@ void loop()
       utcMinuteOffset = tcr->offset % 60;                   // strip out every full hour offset
       utcHourOffset = (tcr->offset - utcMinuteOffset) / 60; // the full hour offset
 
-      Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), _timeZone, clockFormat, utcHourOffset);
+      // Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), _timeZone, clockFormat, utcHourOffset);
 
-      Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset);
+      // Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset);
 
       // Reset flags and sums
       newSettingsFlag = false;
