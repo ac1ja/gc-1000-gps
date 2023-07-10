@@ -8,10 +8,9 @@
  */
 
 #include "Arduino.h"
-#include "avr8-stub.h"
 
 // Libs, see platformio.ini
-#include <TinyGPS.h>         // https://github.com/mikalhart/TinyGPS
+#include <TinyGPSPlus.h>
 #include <RTClib.h>          // https://github.com/adafruit/RTClib
 #include <TimeLib.h>         // https://github.com/PaulStoffregen/Time
 #include <Timezone.h>        // https://github.com/JChristensen/Timezone
@@ -66,7 +65,7 @@ const byte debugSerialCheck = 1; // debug activity pin
 const byte gpsSerialCheck = 15;  // gps activity pin
 
 // hardware objects
-TinyGPS gps;
+TinyGPSPlus gps;
 RTC_DS3231 rtc;
 
 time_t prevDisplay = 0; // when the digital clock was displayed
@@ -91,7 +90,7 @@ void isrPPS()
 
 void syncCheck()
 {
-  if (pps)
+  if (pps || true)
   {
     if (syncReady && !hasTimeBeenSet)
     {
@@ -204,11 +203,25 @@ void loop()
     // Serial.println("Attempting top set time");
     while (Serial3.available())
     {
-      if (gps.encode(Serial3.read()))
+      char c = Serial3.read();
+      // Serial.print(c);
+      if (gps.encode(c))
       { // process gps messages
         // new data...let's crack the date/time
-        gps.crack_datetime(&storedYear, &storedMonth, &storedDay, &storedHour, &storedMinute, &storedSecond, &storedHundredths, &storedAge);
-        Log.verbose(F("Cracked a new time! Second is %d, Age is %d" CR), storedSecond, storedAge);
+        if (gps.time.isValid())
+        {
+          storedHour = gps.time.hour();
+          storedMinute = gps.time.minute();
+          storedSecond = gps.time.second();
+          storedAge = gps.time.age();
+
+          Log.verbose(F("Cracked a new time! Time is %d:%d:%d, Age is %d" CR), storedHour, storedMinute, storedSecond, storedAge);
+        }
+        else
+        {
+          Serial.println("Time is invalid? Could not crack!");
+        }
+
         if (storedAge < 1000)
         {
           // it's good data (not old)...so, let's use it
