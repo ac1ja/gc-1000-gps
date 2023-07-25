@@ -1,3 +1,5 @@
+import os
+import socket
 import subprocess
 
 from datetime import date
@@ -21,31 +23,17 @@ try:
         .strip()
         .decode("utf-8")
     )
-
-    host = (
-        subprocess.check_output(
-            [
-                "hostname",
-            ]
-        )
-        .strip()
-        .decode("utf-8")
-    )
-
-    username = (
-        subprocess.check_output(
-            [
-                "id",
-                "-u",
-                "-n",
-            ]
-        )
-        .strip()
-        .decode("utf-8")
-    )
 except:
     revision = "Unknown"
+
+try:
+    host = socket.gethostname()
+except:
     host = "Unknown"
+
+try:
+    username = os.getlogin()
+except:
     username = "Unknown"
 
 # Cleanup CI
