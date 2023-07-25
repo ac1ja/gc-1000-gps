@@ -8,10 +8,9 @@
  */
 
 #include "Arduino.h"
-#include "avr8-stub.h"
 
 // Libs, see platformio.ini
-#include <TinyGPS.h>         // https://github.com/mikalhart/TinyGPS
+#include <TinyGPSPlus.h>
 #include <RTClib.h>          // https://github.com/adafruit/RTClib
 #include <TimeLib.h>         // https://github.com/PaulStoffregen/Time
 #include <Timezone.h>        // https://github.com/JChristensen/Timezone
@@ -46,7 +45,7 @@ volatile bool hasTimeBeenSet;        // Has the time been set
 volatile int pps = 0;
 
 // Time and time vars
-uint8_t storedMonth, storedDay, storedHour, storedMinute, storedSecond, storedHundredths;
+uint8_t storedMonth, storedDay, storedHour, storedMinute, storedSecond, storedHundredths, storedTenths;
 int16_t storedYear;
 uint32_t storedAge; // same as fixed_afe in docs, time since fix.
 volatile bool syncReady;
@@ -66,7 +65,7 @@ const byte debugSerialCheck = 1; // debug activity pin
 const byte gpsSerialCheck = 15;  // gps activity pin
 
 // hardware objects
-TinyGPS gps;
+TinyGPSPlus gps;
 RTC_DS3231 rtc;
 
 time_t prevDisplay = 0; // when the digital clock was displayed
@@ -89,28 +88,36 @@ void isrPPS()
     hasTimeBeenSet = false;
 }
 
+bool isHighSpec()
+{
+  return millis() - lastTimeSync < hiSpecMaxAge;
+}
+
 void syncCheck()
 {
-  if (pps)
+  if (pps || true)
   {
-    if (syncReady && !hasTimeBeenSet)
+    if (syncReady && (!hasTimeBeenSet || !isHighSpec()))
     {
+      // Compute Drift
+      // byte drift = storedSecond - rtc.now().second();
+      int drift = storedSecond - second();
+
       setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear); // Set the time? This puts this time in local
       rtc.adjust(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond));
 
-      // Not great but maybe could be improved, this whole time-critical section needs to be simplified, timezones make it so hard.
-      byte drift = storedSecond - rtc.now().second();
-      if (abs(drift) < 1)
-      {
-        display.setDrift(display.NONE);
-      }
-      else if (drift > 1)
+      // Display Drift
+      if (abs(drift) < 0)
       {
         display.setDrift(display.SLOW);
       }
-      else
+      else if (drift > 0)
       {
         display.setDrift(display.FAST);
+      }
+      else
+      {
+        display.setDrift(display.NONE);
       }
 
       // rtc.adjust(dipTZ.toLocal(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond).unixtime())); // adjust the time to the tz.tolocal conversion of gps stored data
@@ -121,7 +128,7 @@ void syncCheck()
       syncReady = false;         // Reset syncReady flag
       lastMinute = storedMinute; // Last minute is now the stored minute
 
-      Log.verboseln("Synced!");
+      Log.verboseln("Synced! Drift was %d", drift);
     }
   }
   pps = 0;
@@ -130,9 +137,9 @@ void syncCheck()
 void updateBoard(void)
 {
   // read the status of comm pins
-  display.setData(!digitalRead(debugSerialCheck));             // if there is data on the serial line
-  display.setCapture(!digitalRead(gpsSerialCheck));            // if the gps is being read from
-  display.setHighSpec(millis() - lastTimeSync < hiSpecMaxAge); // if the time has been locked in/synced to the rtc
+  display.setData(!digitalRead(debugSerialCheck));  // if there is data on the serial line
+  display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
+  display.setHighSpec(isHighSpec());                // if the time has been locked in/synced to the rtc
 
   display.setDispTime(getUTCOffsetHours(hour()),
                       getUTCOffsetMinutes(minute()),
@@ -198,17 +205,31 @@ void setup()
 
 void loop()
 {
-  if (!hasTimeBeenSet)
-  { // if we have not yet set the time
-    // Serial.print("Num satelites: "); Serial.println(gps.satellites());
-    // Serial.println("Attempting top set time");
+  // if we have not yet set the time OR if the current time is out of date
+  if (!hasTimeBeenSet || !isHighSpec())
+  {
     while (Serial3.available())
     {
-      if (gps.encode(Serial3.read()))
+      char c = Serial3.read();
+      // Serial.print(c);
+      if (gps.encode(c))
       { // process gps messages
         // new data...let's crack the date/time
-        gps.crack_datetime(&storedYear, &storedMonth, &storedDay, &storedHour, &storedMinute, &storedSecond, &storedHundredths, &storedAge);
-        Log.verbose(F("Cracked a new time! Second is %d, Age is %d" CR), storedSecond, storedAge);
+        if (gps.time.isValid())
+        {
+          storedHour = gps.time.hour();
+          storedMinute = gps.time.minute();
+          storedSecond = gps.time.second();
+          storedTenths = gps.time.centisecond();
+          storedAge = gps.time.age();
+
+          Log.verbose(F("Cracked a new time! Time is %d:%d:%d.%d, Age is %d" CR), storedHour, storedMinute, storedSecond, storedTenths, storedAge);
+        }
+        else
+        {
+          Log.warningln("Time is invalid? Could not crack!");
+        }
+
         if (storedAge < 1000)
         {
           // it's good data (not old)...so, let's use it
@@ -216,9 +237,9 @@ void loop()
         }
         else
         {
-          Log.warningln("Could not set time, Data too old");
+          Log.warningln("Could not set time: Data too old");
         }
-      }            // else {Serial.println("Could not set time, no data to read");}
+      }
       syncCheck(); // check for a sync after attempting to crack a new data stream TODO: we may not need to check here if the last crack failed.
     }
     syncCheck(); // check for a sync after we've finished running through all available GPS data TODO: we may not need to check here if the last crack failed.

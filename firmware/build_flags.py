@@ -53,7 +53,7 @@ if username == "root":
 # username = "\x1B[34m" + username + "\x1B[0m"
 
 
-motd = f"\\r\\nStarting gc-1000-gps.\\r\\nThis software expects your terminal to be VT100 Compatable,\\r\\n\\r\\nUsing version {revision}.\\r\\ncompiled on {today.strftime('%B %d, %Y')} by {username} using {host}.\\r\\n\\r\\n"
+motd = f"\\r\\n\\r\\nStarting gc-1000-gps.\\r\\nThis software expects your terminal to be VT100 Compatable,\\r\\n\\r\\nUsing version {revision}.\\r\\ncompiled on {today.strftime('%B %d, %Y')} by {username} using {host}.\\r\\n\\r\\n"
 
 print(f"-DMOTD='\"{motd}\"'")
 
