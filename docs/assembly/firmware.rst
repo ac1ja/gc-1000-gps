@@ -30,9 +30,9 @@ these programs installed.**
 
    .. group-tab:: Linux
 
-    .. tabs::
+    Download the precompiled hex and flash it using avrdude.
 
-      Download the precompiled hex and flash it using avrdude.
+    .. tabs::
 
       .. code-tab:: shell
          
