@@ -94,7 +94,7 @@ as above.
       Download vs-code_ and install the pio-extension_.
 
       Use ``git clone`` to clone the repo, or download the latest version of
-      ``main`` as a ``.zip`` file.
+      ``main`` as a `.zip file`_.
 
       Open the ``gc-1000-gps/firmware`` directory in vscode. Then invoke platformio upload
       or press ``alt+ctrl+u``.
@@ -115,3 +115,4 @@ If you get an error such as ``command not found: arduino-cli`` make sure you ins
 .. _pio-core: https://docs.platformio.org/en/latest/core/installation/index.html
 .. _vs-code: https://code.visualstudio.com/
 .. _pio-extension: https://platformio.org/install/ide?install=vscode
+.. _.zip file: https://github.com/ac1ja/gc-1000-gps/archive/refs/heads/main.zip
