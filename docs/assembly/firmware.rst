@@ -1,8 +1,8 @@
 Loading the firmware
 ====================
 
-There are three methods for getting the firmware, you can download a precompiled release, compile a
-release yourself or build from ``main`` directly.
+There are four methods for getting the firmware, you can download a precompiled release, compile graphically,
+compile from a release, or build from ``main`` directly.
 
 
 Flash a precompiled binary
@@ -26,12 +26,22 @@ Start by downloading a binary file from github
 You can flash via a gui tool such as AVRDUDESS_ or avrdude, **you will need to have at lease one of 
 these programs installed.**
 
-.. code-block:: shell
+.. tabs::
 
-    # Flashing with avrdude
-    avrdude -p m2560 -c stk500v2 -P /dev/ttytACM0 -b 115200 -F -U flash:w:/path/to/gc-1000-gps.hex
+   .. group-tab:: Linux
 
-See AVRDUDESS_'s docs for information on how to use it to flash your hex file.
+    .. tabs::
+
+      Download the precompiled hex and flash it using avrdude.
+
+      .. code-tab:: shell
+         
+         # Flashing with avrdude
+         avrdude -p m2560 -c stk500v2 -P /dev/ttytACM0 -b 115200 -F -U flash:w:/path/to/gc-1000-gps.hex
+
+   .. group-tab:: Windows
+
+      Using a tool like AVRDUDESS_ on windows is the easiest way to load the hex file.
 
 
 Build from a release
@@ -64,12 +74,31 @@ Building from the main branch may result in more experimental but more up to dat
 Start by cloning the repo down, then CD to the build location and build the code. Use the same steps
 as above.
 
-.. code-block:: shell
+.. tabs::
 
-    git clone https://github.com/ac1ja/gc-1000-gps
-    cd gc-1000-gps/firmware
-    make
-    make upload
+   .. group-tab:: Linux
+
+    Start by installing pio-core_ for your system, then.
+
+    .. tabs::
+
+      .. code-tab:: shell
+         
+          git clone https://github.com/ac1ja/gc-1000-gps
+          cd gc-1000-gps/firmware
+          make
+          make upload
+
+   .. group-tab:: Windows
+
+      Download vs-code_ and install the pio-extension_.
+
+      Use ``git clone`` to clone the repo, or download the latest version of
+      ``main`` as a ``.zip`` file.
+
+      Open the ``gc-1000-gps/firmware`` directory in vscode. Then invoke platformio upload
+      or press ``alt+ctrl+u``.
+
 
 Troubleshooting
 ###############
@@ -83,3 +112,6 @@ If you get an error such as ``command not found: arduino-cli`` make sure you ins
 .. _dependencies: https://github.com/ac1ja/gc-1000-gps#setup
 .. _releases: https://github.com/ac1ja/gc-1000-gps/releases
 .. _AVRDUDESS: https://github.com/zkemble/AVRDUDESS
+.. _pio-core: https://docs.platformio.org/en/latest/core/installation/index.html
+.. _vs-code: https://code.visualstudio.com/
+.. _pio-extension: https://platformio.org/install/ide?install=vscode
