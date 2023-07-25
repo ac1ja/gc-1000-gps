@@ -1,4 +1,5 @@
 [![Documentation Status](https://readthedocs.org/projects/gc-1000-gps/badge/?version=latest)](https://gc-1000-gps.readthedocs.io/en/latest/?badge=latest)
+[![Firmware Workflow](https://github.com/ac1ja/gc-1000-gps/actions/workflows/firmware_workflow.yml/badge.svg)](https://github.com/ac1ja/gc-1000-gps/actions/workflows/firmware_workflow.yml)
 
 # Setup
 Requires arduino, arduino-cli, make

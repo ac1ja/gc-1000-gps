@@ -1,18 +1,23 @@
-// arduinio controlled Heathkit GC-1000 clock display driver
-// licensed under GNU GPL v3.0, https://www.gnu.org/licenses/gpl.html
-//
-// Nick Soggu
-// created march 2020
-// revised for arduino mega on 2021
+/**
+ * @brief arduinio controlled Heathkit GC-1000 clock display driver
+ * licensed under GNU GPL v3.0, https://www.gnu.org/licenses/gpl.html
+ *
+ * Nick Soggu
+ * created march 2020
+ * revised for arduino mega on 2021
+ */
 
-// arduino curated libraries (see requirements.txt)
-#include <TinyGPS.h>         // https://github.com/mikalhart/TinyGPS
+#include "Arduino.h"
+
+// Libs, see platformio.ini
+#include <TinyGPSPlus.h>
 #include <RTClib.h>          // https://github.com/adafruit/RTClib
 #include <TimeLib.h>         // https://github.com/PaulStoffregen/Time
 #include <Timezone.h>        // https://github.com/JChristensen/Timezone
 #include <EnableInterrupt.h> // https://github.com/GreyGnome/EnableInterrupt
 #include <TimerOne.h>        // https://github.com/PaulStoffregen/TimerOne
 #include <avr/wdt.h>
+#include <ArduinoLog.h>
 
 // Our libs
 #include "display.h"
@@ -40,9 +45,9 @@ volatile bool hasTimeBeenSet;        // Has the time been set
 volatile int pps = 0;
 
 // Time and time vars
-volatile byte storedMonth, storedDay, storedHour, storedMinute, storedSecond, storedHundredths;
-volatile int storedYear;
-volatile unsigned long storedAge; // same as fixed_afe in docs, time since fix.
+uint8_t storedMonth, storedDay, storedHour, storedMinute, storedSecond, storedHundredths, storedTenths;
+int16_t storedYear;
+uint32_t storedAge; // same as fixed_afe in docs, time since fix.
 volatile bool syncReady;
 volatile byte lastMinute;
 
@@ -50,7 +55,7 @@ volatile byte lastMinute;
 bool newSettingsFlag = false;                                 // true whenever settings have been changed
 unsigned int DIPsum;                                          // holds the sum value of all switches to check for when settings are changed
 const byte TimeZoneInputs[] = {DIP0, DIP1, DIP2, DIP3, DIP4}; // what pins to use for the time zone inputs
-unsigned int timeZone;                                        // the current timezone
+int16_t timeZone;                                             // the current timezone
 const byte ClockFormatInput = DIP2;                           // what pin to use to check if 24 or 12hr format
 
 long dipcheck = 0; // a counter to keep track of clock cycles before next update
@@ -60,7 +65,7 @@ const byte debugSerialCheck = 1; // debug activity pin
 const byte gpsSerialCheck = 15;  // gps activity pin
 
 // hardware objects
-TinyGPS gps;
+TinyGPSPlus gps;
 RTC_DS3231 rtc;
 
 time_t prevDisplay = 0; // when the digital clock was displayed
@@ -83,28 +88,36 @@ void isrPPS()
     hasTimeBeenSet = false;
 }
 
+bool isHighSpec()
+{
+  return millis() - lastTimeSync < hiSpecMaxAge;
+}
+
 void syncCheck()
 {
-  if (pps)
+  if (pps || true)
   {
-    if (syncReady && !hasTimeBeenSet)
+    if (syncReady && (!hasTimeBeenSet || !isHighSpec()))
     {
+      // Compute Drift
+      // byte drift = storedSecond - rtc.now().second();
+      int drift = storedSecond - second();
+
       setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear); // Set the time? This puts this time in local
       rtc.adjust(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond));
 
-      // Not great but maybe could be improved, this whole time-critical section needs to be simplified, timezones make it so hard.
-      byte drift = storedSecond - rtc.now().second();
-      if (abs(drift) < 1)
-      {
-        display.setDrift(display.NONE);
-      }
-      else if (drift > 1)
+      // Display Drift
+      if (abs(drift) < 0)
       {
         display.setDrift(display.SLOW);
       }
-      else
+      else if (drift > 0)
       {
         display.setDrift(display.FAST);
+      }
+      else
+      {
+        display.setDrift(display.NONE);
       }
 
       // rtc.adjust(dipTZ.toLocal(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond).unixtime())); // adjust the time to the tz.tolocal conversion of gps stored data
@@ -115,7 +128,7 @@ void syncCheck()
       syncReady = false;         // Reset syncReady flag
       lastMinute = storedMinute; // Last minute is now the stored minute
 
-      Serial.println("Synced!");
+      Log.verboseln("Synced! Drift was %d", drift);
     }
   }
   pps = 0;
@@ -124,9 +137,9 @@ void syncCheck()
 void updateBoard(void)
 {
   // read the status of comm pins
-  display.setData(!digitalRead(debugSerialCheck));             // if there is data on the serial line
-  display.setCapture(!digitalRead(gpsSerialCheck));            // if the gps is being read from
-  display.setHighSpec(millis() - lastTimeSync < hiSpecMaxAge); // if the time has been locked in/synced to the rtc
+  display.setData(!digitalRead(debugSerialCheck));  // if there is data on the serial line
+  display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
+  display.setHighSpec(isHighSpec());                // if the time has been locked in/synced to the rtc
 
   display.setDispTime(getUTCOffsetHours(hour()),
                       getUTCOffsetMinutes(minute()),
@@ -143,7 +156,10 @@ void setup()
   // initalize Serial interfaces
   Serial.begin(115200); // USB (debug)
   Serial3.begin(9600);  // GPS
-  Serial.println("Serial started.");
+
+  // Setup logging
+  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
+  Log.noticeln("Serial started.");
 
   // inatialize input pins
   pinMode(GPS_PPS_PIN, INPUT); // GPS PPS signal
@@ -155,11 +171,11 @@ void setup()
   PORTC = 0xFF; // ALl PORTC pins HIGH
   pinMode(debugSerialCheck, INPUT);
   pinMode(gpsSerialCheck, INPUT);
-  Serial.println("Initalized all I/O pins");
+  Log.noticeln("Initalized all I/O pins");
 
   // start rtc
   rtc.begin();
-  Serial.println("Started RTC.");
+  Log.noticeln("Started RTC.");
 
   lastTimeSync = millis() + hiSpecMaxAge;
   hasTimeBeenSet = false;
@@ -169,10 +185,10 @@ void setup()
   // shiftOut(DATA_PIN, CLOCK_PIN, dataOut);
 
   enableInterrupt(GPS_PPS_PIN, isrPPS, RISING); // Attach interrupt to gps PPS pin
-  Serial.println("Initalized all inturrupts");
+  Log.noticeln("Initalized all inturrupts");
 
   // print out some information about the software we're running.
-  Serial.println(MOTD);
+  Log.noticeln(MOTD);
 
   // don't sync the time yet...
   syncReady = false;
@@ -189,20 +205,31 @@ void setup()
 
 void loop()
 {
-  if (!hasTimeBeenSet)
-  { // if we have not yet set the time
-    // Serial.print("Num satelites: "); Serial.println(gps.satellites());
-    // Serial.println("Attempting top set time");
+  // if we have not yet set the time OR if the current time is out of date
+  if (!hasTimeBeenSet || !isHighSpec())
+  {
     while (Serial3.available())
     {
-      if (gps.encode(Serial3.read()))
+      char c = Serial3.read();
+      // Serial.print(c);
+      if (gps.encode(c))
       { // process gps messages
         // new data...let's crack the date/time
-        gps.crack_datetime(&storedYear, &storedMonth, &storedDay, &storedHour, &storedMinute, &storedSecond, &storedHundredths, &storedAge);
-        Serial.print("Cracked a new time! Second is ");
-        Serial.print(static_cast<int>(storedSecond));
-        Serial.print(", Age is ");
-        Serial.println(static_cast<int>(storedAge));
+        if (gps.time.isValid())
+        {
+          storedHour = gps.time.hour();
+          storedMinute = gps.time.minute();
+          storedSecond = gps.time.second();
+          storedTenths = gps.time.centisecond();
+          storedAge = gps.time.age();
+
+          Log.verbose(F("Cracked a new time! Time is %d:%d:%d.%d, Age is %d" CR), storedHour, storedMinute, storedSecond, storedTenths, storedAge);
+        }
+        else
+        {
+          Log.warningln("Time is invalid? Could not crack!");
+        }
+
         if (storedAge < 1000)
         {
           // it's good data (not old)...so, let's use it
@@ -210,9 +237,9 @@ void loop()
         }
         else
         {
-          Serial.println("Could not set time, Data too old");
+          Log.warningln("Could not set time: Data too old");
         }
-      }            // else {Serial.println("Could not set time, no data to read");}
+      }
       syncCheck(); // check for a sync after attempting to crack a new data stream TODO: we may not need to check here if the last crack failed.
     }
     syncCheck(); // check for a sync after we've finished running through all available GPS data TODO: we may not need to check here if the last crack failed.
@@ -230,11 +257,7 @@ void loop()
     // if any of the switches were changed, update everything
     if (_DIPsum != DIPsum || newSettingsFlag)
     {
-      Serial.println("Updating dip switches!");
-      Serial.print("DIPA set to: ");
-      Serial.println(DIPA, BIN);
-      Serial.print("DIPC set to: ");
-      Serial.println(DIPC, BIN);
+      Log.verbose(F("Updating dip switches, DIPA set to %b, DIPC set to %b" CR), DIPA, DIPC);
 
       // update timezone
       unsigned int _timeZone = 0; // clearout a temporary int of memory
@@ -243,8 +266,7 @@ void loop()
         int value = bitRead(DIPC, TimeZoneInputs[i]); // read byte (0001, 0000)
         _timeZone = _timeZone + (value << i);         // shif byte to its correct magnitude
       }
-      Serial.print("Offset is ");
-      Serial.println(_timeZone);
+
       timeZone = (_timeZone - 12) * 60; // store the new timezone value, offset by -12 (so we dont need to use a signed dip switch)
 
       // update clock format
@@ -256,7 +278,6 @@ void loop()
       {
         clockFormat = 12;
       }
-      Serial.println(clockFormat);
 
       // timezone
       // TODO: Most of these timezone values are HARDCODED until we find a way to easily craft dip switches that can read them.
@@ -264,12 +285,14 @@ void loop()
       TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone};       // timezone offset (hrs) converted to minutes
       Timezone dipTZ(dipDST, dipSTD);
 
-      time_t utc = now();                      // grab the current time
-      time_t local = dipTZ.toLocal(utc, &tcr); // setup local time (this can take thousands of cycles to compute)
+      dipTZ.toLocal(now(), &tcr); // setup local time (this can take thousands of cycles to compute)
 
       utcMinuteOffset = tcr->offset % 60;                   // strip out every full hour offset
       utcHourOffset = (tcr->offset - utcMinuteOffset) / 60; // the full hour offset
-      Serial.println(utcHourOffset);
+
+      Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), _timeZone, clockFormat, utcHourOffset);
+
+      Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset);
 
       // Reset flags and sums
       newSettingsFlag = false;
