@@ -9,10 +9,14 @@ _build
 *.zip
 
 # CAD Artifacts
-.FCStd*
+*.FCStd1
 
 # Doc artifacts
 _*/
 
 # vscode
 .vscode
+
+# Dev
+Pipfile
+Pipfile.lock

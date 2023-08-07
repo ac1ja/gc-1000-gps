@@ -1,11 +1,19 @@
 Getting Started
 ===============
 
-Welcome! These docs are still in the early stages of being completed, but theres still some useful information present!
+The GC-1000-GPS is a drop-in replacement board for the GC-1000 radio disciplined clock, giving
+some life and utility back to your super accurate radio synchronized clock!
 
-the GC-1000-GPS project aims to upgrade your existing GC-1000 heathkit time sync using GPS to generate a time syncronizaton for your radio.
 
-Some important things you may want:
+Where to start?
+---------------
+
+Once you have a kit, check out the :ref:`Assemble the GC-1000-GPS` section 
+to begin the process of installing and configuring your board for the first time!
+
+
+Extra tidbits
+-------------
 
 * Original Manual + schematics :download:`pdf <../../gc-1000-gps/docs/Heathkit_GC1000H_Accurate_Clock_(schematic).pdf>`.
 * `PRC68.com/Brooke Clarke`_ has some interesting time disecting their gc-1000 and the info was very helpful for making this project.

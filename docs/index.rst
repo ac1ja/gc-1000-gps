@@ -11,6 +11,7 @@ Welcome to GC-1000-GPS's documentation!
    :glob:
 
    usage/getting-started
-   assembly/assembly.rst
+   assembly/circuit_board
+   assembly/firmware
    usage/usage
-   development/developing
+   development/contributing
