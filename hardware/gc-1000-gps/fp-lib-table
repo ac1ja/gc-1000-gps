@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "gc-1000-gps")(type "KiCad")(uri "${KIPRJMOD}/Libraries/EagleImport/gc-1000-gps.pretty")(options "")(descr ""))
+)
