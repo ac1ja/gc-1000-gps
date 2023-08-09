@@ -27,6 +27,7 @@ release = str(repo.git.describe("--tags"))
 extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx_tabs.tabs",
+    "sphinxcontrib.mermaid",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
