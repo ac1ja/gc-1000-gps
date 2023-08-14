@@ -506,5 +506,9 @@
       ""
     ]
   ],
-  "text_variables": {}
+  "text_variables": {
+    "FULL_REVISION": "v0.2-56-g4c3d368",
+    "ISSUE": "2023-08-14",
+    "REVISION": "4c3d368"
+  }
 }
