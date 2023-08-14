@@ -25,6 +25,7 @@
 // Our headers
 #include "boardConfig.h"
 #include "buildData.h"
+#include "constants.h"
 #include "timezones.h"
 
 // Timezone
@@ -37,9 +38,8 @@ TimeChangeRule *tcr; // pointer telling us where the TZ abbrev and offset is
 Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
 
 // Hi-Spec and time age
-const uint16_t hiSpecMaxAge = 60000; // 60 Seconds
-unsigned long lastTimeSync;          // How long ago was time set
-volatile bool hasTimeBeenSet;        // Has the time been set
+unsigned long lastTimeSync;   // How long ago was time set
+volatile bool hasTimeBeenSet; // Has the time been set
 
 // PPS sync flag
 volatile int pps = 0;

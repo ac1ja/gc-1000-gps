@@ -194,6 +194,25 @@ outputs:
         - id: Side
           name: Layer
 
+  - name: "Universal_bom"
+    comment: "Universal bill of materials"
+    type: bom
+    options:
+      output: "%f_%i_universal_bom.%x"
+      ref_separator: ","
+      columns:
+        - field: Value
+          name: Comment
+        - field: References
+          name: Designator
+        - Footprint
+        - field: "LINK"
+          name: "Purchase URL #"
+      csv:
+        hide_pcb_info: true
+        hide_stats_info: true
+        quote_all: true
+
   - name: "JLCPCB_bom"
     comment: "BoM for JLCPCB"
     type: bom

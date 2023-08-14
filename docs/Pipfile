@@ -8,6 +8,8 @@ sphinx = "*"
 sphinx-rtd-theme = "*"
 readthedocs-sphinx-search = "*"
 gitpython = "*"
+sphinx-tabs = "*"
+sphinxcontrib-mermaid = "*"
 
 [dev-packages]
 

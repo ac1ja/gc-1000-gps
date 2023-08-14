@@ -3,6 +3,7 @@ sphinx
 sphinx-tabs
 sphinx_rtd_theme
 readthedocs-sphinx-search
+sphinxcontrib-mermaid
 
 # Other build
 GitPython
