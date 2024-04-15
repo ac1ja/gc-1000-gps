@@ -93,6 +93,13 @@ bool isHighSpec()
   return (millis() - lastTimeSync < hiSpecMaxAge) && hasTimeBeenSet;
 }
 
+void pullRTCTime()
+{
+  DateTime _now = rtc.now();
+  // Set time using old RTC value.
+  setTime(_now.hour(), _now.minute(), _now.second(), _now.day(), _now.month(), _now.year());
+}
+
 void syncCheck()
 {
   // Checks the PPS flag, limits us to doing a syncCheck once per second.
@@ -135,9 +142,7 @@ void syncCheck()
   else
   {
     // Might be nice to move this to a more periodic function if we go the RTOS route.
-    DateTime _now = rtc.now();
-    // Set time using old RTC value.
-    setTime(_now.hour(), _now.minute(), _now.second(), _now.day(), _now.month(), _now.year());
+    pullRTCTime();
   }
   pps = false;
 }
@@ -209,6 +214,9 @@ void setup()
   // initalize inturrupts
   Timer1.initialize(3000);             // Cycle every 3000μs
   Timer1.attachInterrupt(updateBoard); // Attach an interrupt to callback updateBoard()
+
+  // Quick-load rtc time at boot
+  pullRTCTime();
 }
 
 void loop()
