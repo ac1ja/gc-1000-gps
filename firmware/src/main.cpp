@@ -255,8 +255,8 @@ void loop()
   }
 
   // check if its time to check for the dip settings TODO: move this to a scheduled task, see branch task-scheduler
-  if (dipcheck++ > 80000)
-  { // check if 80000 cycles have passed since last updating the dips
+  if (dipcheck++ > 400)
+  { // check if 400 cycles have passed since last updating the dips
     // check if any settings have changed since last time
     unsigned int _DIPsum = 0; // create a temporary place to store out dipswitch values
     byte DIPA = ~PINA;        // ~ to invert
