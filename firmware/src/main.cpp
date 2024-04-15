@@ -42,7 +42,7 @@ unsigned long lastTimeSync;   // How long ago was time set
 volatile bool hasTimeBeenSet; // Has the time been set
 
 // PPS sync flag
-volatile int pps = 0;
+volatile bool pps = 0;
 
 // Time and time vars
 uint8_t storedMonth, storedDay, storedHour, storedMinute, storedSecond, storedHundredths, storedTenths;
@@ -81,21 +81,22 @@ bool mhz5, mhz10, mhz15;
 void isrPPS()
 {
   // flag the 1pps input signal
-  pps = 1;
+  pps = true;
 
   // if minute has changed...allow a GPS sync to happen
   if (lastMinute != minute())
-    hasTimeBeenSet = false;
+    hasTimeBeenSet = false; // Might need to refactor this? seems redundant?
 }
 
 bool isHighSpec()
 {
-  return millis() - lastTimeSync < hiSpecMaxAge;
+  return (millis() - lastTimeSync < hiSpecMaxAge) && hasTimeBeenSet;
 }
 
 void syncCheck()
 {
-  if (pps || true)
+  // Checks the PPS flag, limits us to doing a syncCheck once per second.
+  if (pps) // TODO: add a timeout here so we can sync even without pps signal
   {
     if (syncReady && (!hasTimeBeenSet || !isHighSpec()))
     {
@@ -131,7 +132,14 @@ void syncCheck()
       Log.verboseln("Synced! Drift was %d", drift);
     }
   }
-  pps = 0;
+  else
+  {
+    // Might be nice to move this to a more periodic function if we go the RTOS route.
+    DateTime _now = rtc.now();
+    // Set time using old RTC value.
+    setTime(_now.hour(), _now.minute(), _now.second(), _now.day(), _now.month(), _now.year());
+  }
+  pps = false;
 }
 
 void updateBoard(void)
@@ -233,6 +241,7 @@ void loop()
         if (storedAge < 1000)
         {
           // it's good data (not old)...so, let's use it
+          Log.verboseln("Age is good! Setting sync ready flag! %d -> %d", syncReady, true);
           syncReady = true;
         }
         else
