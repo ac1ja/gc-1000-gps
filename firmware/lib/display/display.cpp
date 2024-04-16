@@ -70,13 +70,13 @@ void Display::setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t 
         dispData = getDigitByte(minute % 10, 3);
         break;
     case 4:
-        dispData = getDigitByte(second / 10, 4);
+        dispData = second < 60 ? getDigitByte(second / 10, 4) : 0;
         break;
     case 5:
-        dispData = getDigitByte(second % 10, 5);
+        dispData = second < 60 ? getDigitByte(second % 10, 5) : 0;
         break;
     case 6:
-        dispData = getDigitByte(tenths, 6);
+        dispData = tenths < 10 ? getDigitByte(tenths, 6) : getDigitByte(0, 6);
     }
 };
 void Display::setMeridan(bool _AM, bool _PM)
