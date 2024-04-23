@@ -57,6 +57,8 @@ unsigned int DIPsum;                                          // holds the sum v
 const byte TimeZoneInputs[] = {DIP0, DIP1, DIP2, DIP3, DIP4}; // what pins to use for the time zone inputs
 int16_t timeZone;                                             // the current timezone
 const byte ClockFormatInput = DIP2;                           // what pin to use to check if 24 or 12hr format
+const byte LocalTZInput = DIP0;                               // what pin to use to check if we're using UTC or local TZ (TimeZoneInputs)
+bool isUsingLocalTZInput = true;                              // Whether or not we're currently using the local tz input
 
 long dipcheck = 0; // a counter to keep track of clock cycles before next update
 
@@ -172,13 +174,20 @@ void updateBoard(void)
   display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
   display.setHighSpec(isHighSpec());                // if the time has been locked in/synced to the rtc
 
-  display.setDispTime(getUTCOffsetHours(hour()),
+  display.setDispTime(isUsingLocalTZInput ? getUTCOffsetHours(hour()) : hour() % (clockFormat),
                       getUTCOffsetMinutes(minute()),
                       second(),
                       isHighSpec() ? (((millis() - lastTimeSync) / 100) % 10) : flasher() ? 99
                                                                                           : satsInView);
 
-  display.setMeridan(getAM(hour()), !getAM(hour()));
+  if (clockFormat != 24)
+  {
+    display.setMeridan(getAM(hour()), !getAM(hour()));
+  }
+  else
+  {
+    display.setMeridan(false, false);
+  }
 
   display.updateBoard();
 }
@@ -307,7 +316,7 @@ void loop()
       timeZone = (_timeZone - 12) * 60; // store the new timezone value, offset by -12 (so we dont need to use a signed dip switch)
 
       // update clock format
-      if (digitalRead(ClockFormatInput))
+      if (bitRead(DIPA, ClockFormatInput))
       {
         clockFormat = 24;
       }
@@ -315,6 +324,9 @@ void loop()
       {
         clockFormat = 12;
       }
+
+      // Updates the flag letting us know if we're using localtz or not
+      isUsingLocalTZInput = !bitRead(DIPA, LocalTZInput);
 
       // timezone
       // TODO: Most of these timezone values are HARDCODED until we find a way to easily craft dip switches that can read them.
