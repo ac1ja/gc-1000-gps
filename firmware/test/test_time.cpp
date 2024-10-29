@@ -1,6 +1,11 @@
 #include <Arduino.h>
 #include <unity.h>
 #include <Adafruit_I2CDevice.h> // Required because the RTC lib doesn't sanitize library headers
+#include <display.h>
+#include "boardConfig.h"
+#include <constants.h>
+
+Display display(SEGMENT_ENABLE_PIN, LATCH_PIN, DATA_PIN, CLOCK_PIN);
 
 #include "timezones.h"
 
@@ -114,6 +119,33 @@ void test_24hr_format_11_pm()
     TEST_ASSERT_EQUAL(false, getAM(_utc_hour));
 }
 
+// Edge/error cases
+void test_12hr_format_28_pm()
+{
+    // If there were some rollover and 28 was passed to the function
+
+    int _utc_hour = 28;
+    TEST_ASSERT_EQUAL(0, meridianTime(_utc_hour, false));
+}
+
+void test_24hr_format_minus2_pm()
+{
+    // Negative ints are possible!
+
+    int _utc_hour = -2;
+    TEST_ASSERT_EQUAL(0, meridianTime(_utc_hour, true));
+}
+
+// UTC Offset tests
+void test_no_offset()
+{
+    // No offset test
+
+    int _current_time = 14;
+    utcHourOffset = 0;
+    TEST_ASSERT_EQUAL(14, getUTCOffsetHours(_current_time));
+}
+
 void setup()
 {
     UNITY_BEGIN();
@@ -134,10 +166,25 @@ void setup()
     RUN_TEST(test_24hr_format_1_pm);
     RUN_TEST(test_24hr_format_11_pm);
 
+    // Run individual tests for edge cases
+    RUN_TEST(test_12hr_format_28_pm);
+    RUN_TEST(test_24hr_format_minus2_pm);
+
+    // UTC Offset tests
+    RUN_TEST(test_no_offset);
+
     UNITY_END();
+
+    // Done
+    display.setCapture(true);
+    display.setDrift(display.ALL);
+    display.setHighSpec(true);
+    display.setData(true);
 }
 
 void loop()
 {
-    // PlatformIO handles execution
+    display.setDispTime(88, 88, 88, 8);
+    display.updateBoard();
+    delay(2);
 }

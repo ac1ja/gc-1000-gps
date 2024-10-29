@@ -1,3 +1,6 @@
+#ifndef TIMEZONES_H
+#define TIMEZONES_H
+
 // uses timezone lib
 // format is
 // TimeChangeRule myRule = {abbrev, week, dow, month, hour, offset};
@@ -60,6 +63,12 @@ bool getAM(byte local_hour)
  */
 int meridianTime(int hour, bool use_24hr_format = false)
 {
+    // Handle edge cases
+    if (hour < 0 || hour > 23)
+    {
+        return 0;
+    }
+
     // If using 24-hour format and hour is 0, return 1
     if (use_24hr_format)
     {
@@ -73,3 +82,5 @@ int meridianTime(int hour, bool use_24hr_format = false)
         return 12; // Noon as 12 PM
     return hour > 12 ? hour - 12 : hour;
 }
+
+#endif
