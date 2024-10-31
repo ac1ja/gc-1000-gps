@@ -59,7 +59,7 @@ bool getAM(byte local_hour)
  *
  * @param hour (0 - 23) Input hour in 24-hour format.
  * @param use_24hr_format Set to true for 24-hour format, false for 12-hour format.
- * @return int Converted hour in either 12-hour (1 - 12) or 24-hour (1 - 23) format.
+ * @return int Converted hour in either 12-hour (1 - 12) or 24-hour (0 - 23) format.
  */
 int meridianTime(int hour, bool use_24hr_format = false)
 {
