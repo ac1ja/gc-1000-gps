@@ -5,9 +5,16 @@
 # Firmware
 Requires platformio, make
 
-## Install platformio
+Install build deps
+```
+# Ubuntu/Debian
+sudo apt install build-essential make
 
-Install platformio from [here](https://platformio.org/install), this project assumes
+# Platformio install script, see https://docs.platformio.org/en/latest/core/installation/methods/installer-script.html
+python3 -c "$(curl -fsSL https://raw.githubusercontent.com/platformio/platformio/master/scripts/get-platformio.py)"
+```
+
+Or install platformio from [here](https://platformio.org/install), this project assumes
 only pio core but the ide integrations will also work
 
 ## Build
