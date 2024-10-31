@@ -43,3 +43,12 @@ debug: flash monitor
 
 monitor:
 	pio device monitor --filter=direct --filter=time
+
+# Remote versions of the above
+flash-remote:
+	pio remote --agent silvertech-desk run --target upload --upload-port /dev/ttyACM0
+
+monitor-remote:
+	pio remote --agent silvertech-desk device monitor -p /dev/ttyACM0
+
+debug-remote: flash-remote monitor-remote
