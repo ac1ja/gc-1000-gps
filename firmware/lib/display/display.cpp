@@ -56,9 +56,10 @@ void Display::updateBoard()
 void Display::setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tenths)
 {
     switch (currentSegment)
-    { // switch on digit location
+    { // Switch on digit location
     case 0:
-        dispData = getDigitByte(hour / 10, 0);
+        // Dont display 0 in the tens hour place
+        dispData = (hour / 10) != 0 ? getDigitByte(hour / 10, 0) : getDigitByte(0b11110000, 0);
         break;
     case 1:
         dispData = getDigitByte(hour % 10, 1);
@@ -70,10 +71,10 @@ void Display::setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t 
         dispData = getDigitByte(minute % 10, 3);
         break;
     case 4:
-        dispData = second < 60 ? getDigitByte(second / 10, 4) : getDigitByte(0, 4);
+        dispData = getDigitByte(second / 10, 4);
         break;
     case 5:
-        dispData = second < 60 ? getDigitByte(second % 10, 5) : getDigitByte(0, 5);
+        dispData = getDigitByte(second % 10, 5);
         break;
     case 6:
         dispData = tenths < 10 ? getDigitByte(tenths, 6) : 0b01101111;

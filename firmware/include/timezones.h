@@ -17,8 +17,8 @@ byte clockFormat = 24;              // 12 or 24, (could be a bool but all code u
  */
 int getUTCOffsetHours(byte utc_hour)
 {
-    // The UTC hour, plus our hour offset (-12 to +12), mod 24
-    int local_hour = (utc_hour + utcHourOffset) % 24;
+    // The UTC hour, plus our hour offset (-12 to +12) plus 24 in case the offset is negative, mod 24
+    int local_hour = (utc_hour + utcHourOffset + 24) % 24;
     return local_hour;
 }
 
@@ -36,15 +36,15 @@ int getUTCOffsetMinutes(byte utc_minute)
 }
 
 /**
- * @brief Checks if AM or not using LOCAL TIME
+ * @brief Checks if AM or not using 24hr UTC time
  *
- * @param local_hour 0 - 23
- * @return true when it is AM (local tz)
- * @return false when it is PM (local tz)
+ * @param utc_hour 0 - 23
+ * @return true when it is AM
+ * @return false when it is PM
  */
-bool getAM(byte local_hour)
+bool getAM(byte utc_hour)
 {
-    if (local_hour + utcHourOffset < 12)
+    if (utc_hour < 12)
     {
         return true;
     }
@@ -63,12 +63,6 @@ bool getAM(byte local_hour)
  */
 int meridianTime(int hour, bool use_24hr_format = false)
 {
-    // Handle edge cases
-    if (hour < 0 || hour > 23)
-    {
-        return 0;
-    }
-
     // If using 24-hour format and hour is 0, return 1
     if (use_24hr_format)
     {
@@ -77,8 +71,16 @@ int meridianTime(int hour, bool use_24hr_format = false)
 
     // Convert to 12-hour format
     if (hour == 0)
+    {
         return 12; // Midnight as 12 AM
-    return hour > 12 ? hour - 12 : hour;
+    }
+
+    if (hour > 12)
+    {
+        return hour - 12; // Hours over 12 subtract 12
+    }
+
+    return hour; // Numbers under 12 are the same as in 24 hr mode
 }
 
 #endif
