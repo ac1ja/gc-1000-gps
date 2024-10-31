@@ -72,14 +72,12 @@ int meridianTime(int hour, bool use_24hr_format = false)
     // If using 24-hour format and hour is 0, return 1
     if (use_24hr_format)
     {
-        return hour == 0 ? 1 : hour;
+        return hour;
     }
 
     // Convert to 12-hour format
     if (hour == 0)
         return 12; // Midnight as 12 AM
-    if (hour == 12)
-        return 12; // Noon as 12 PM
     return hour > 12 ? hour - 12 : hour;
 }
 

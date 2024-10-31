@@ -83,6 +83,15 @@ void test_24hr_format_midnight()
     TEST_ASSERT_EQUAL(true, getAM(_utc_hour));
 }
 
+void test_24hr_format_midnight()
+{
+    // In 24 hour mode, midnight should be 00:00
+
+    int _utc_hour = 0;
+    TEST_ASSERT_EQUAL(0, meridianTime(_utc_hour, true));
+    TEST_ASSERT_EQUAL(true, getAM(_utc_hour));
+}
+
 void test_24hr_format_1_am()
 {
     // 1 AM should read 1 in 24hr mode
