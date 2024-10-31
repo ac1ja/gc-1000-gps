@@ -174,13 +174,17 @@ void updateBoard(void)
   display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
   display.setHighSpec(isHighSpec());                // if the time has been locked in/synced to the rtc
 
-  display.setDispTime(isUsingLocalTZInput ? getUTCOffsetHours(hour()) : hour() % (clockFormat),
-                      getUTCOffsetMinutes(minute()),
+  // Local var use24mode (could be refactored)
+  bool _use24mode = clockFormat == 24;
+
+  display.setDispTime(isUsingLocalTZInput ? meridianTime(getUTCOffsetHours(hour()), _use24mode) : meridianTime(hour(), _use24mode),
+                      isUsingLocalTZInput ? getUTCOffsetMinutes(minute()) : minute(),
                       second(),
                       isHighSpec() ? (((millis() - lastTimeSync) / 100) % 10) : flasher() ? 99
                                                                                           : satsInView);
 
-  if (clockFormat != 24)
+  // Setting the AM/PM lights
+  if (!_use24mode)
   {
     display.setMeridan(getAM(hour()), !getAM(hour()));
   }
