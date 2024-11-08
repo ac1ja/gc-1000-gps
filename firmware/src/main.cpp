@@ -58,7 +58,9 @@ const byte TimeZoneInputs[] = {DIP0, DIP1, DIP2, DIP3, DIP4}; // what pins to us
 int16_t timeZone;                                             // the current timezone
 const byte ClockFormatInput = DIP2;                           // what pin to use to check if 24 or 12hr format
 const byte LocalTZInput = DIP0;                               // what pin to use to check if we're using UTC or local TZ (TimeZoneInputs)
-bool isUsingLocalTZInput = true;                              // Whether or not we're currently using the local tz input
+const byte ObserveDSTInput = DIP3;                            // what pin to use to check if observing DST or not
+bool isUsingLocalTZInput = true;                              // whether or not we're currently using the local tz input
+bool isObservingDST = true;                                   // whether or not we're observing DST
 
 long dipcheck = 0; // a counter to keep track of clock cycles before next update
 
@@ -332,10 +334,13 @@ void loop()
       // Updates the flag letting us know if we're using localtz or not
       isUsingLocalTZInput = !bitRead(DIPA, LocalTZInput);
 
+      // Updates if we're observing dst or not
+      isObservingDST = bitRead(DIPA, ObserveDSTInput); // not used?
+
       // timezone
       // TODO: Most of these timezone values are HARDCODED until we find a way to easily craft dip switches that can read them.
-      TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, timeZone + 60}; // timezone offset (hrs) converted to minutes, offset by 1 hr
-      TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone};       // timezone offset (hrs) converted to minutes
+      TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, timeZone};     // timezone offset (hrs) converted to minutes, offset by 1 hr
+      TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone - 60}; // timezone offset (hrs) converted to minutes
       Timezone dipTZ(dipDST, dipSTD);
 
       dipTZ.toLocal(now(), &tcr); // setup local time (this can take thousands of cycles to compute)
@@ -343,9 +348,9 @@ void loop()
       utcMinuteOffset = tcr->offset % 60;                   // strip out every full hour offset
       utcHourOffset = (tcr->offset - utcMinuteOffset) / 60; // the full hour offset
 
-      Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), _timeZone, clockFormat, utcHourOffset);
+      Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), timeZone, clockFormat, utcHourOffset);
 
-      Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset);
+      Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d, using dst %d, is dst %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset, isObservingDST, dipTZ.utcIsDST(now()));
 
       // Reset flags and sums
       newSettingsFlag = false;
