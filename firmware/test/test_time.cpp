@@ -122,7 +122,7 @@ void test_24hr_format_11_pm()
 // Edge/error cases
 void test_12hr_format_28_pm()
 {
-    // If there were some rollover and 28 was passed to the function (nick)
+    // If there were some rollover and 28 was passed to the function
 
     int _utc_hour = 28;
     TEST_ASSERT_EQUAL(16, meridianTime(_utc_hour, false));
@@ -130,7 +130,7 @@ void test_12hr_format_28_pm()
 
 void test_24hr_format_minus2_pm()
 {
-    // Expect a funny answer (nick)
+    // Expect a funny answer
 
     int _utc_hour = -2;
     TEST_ASSERT_EQUAL(-2, meridianTime(_utc_hour, true));

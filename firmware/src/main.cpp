@@ -29,8 +29,8 @@
 #include "timezones.h"
 
 // Timezone
-TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, -240}; // Daylight time = UTC - 4 hours TODO: Changeme
-TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, -300};  // Standard time = UTC - 5 hours TODO: Changeme
+TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, -240}; // Daylight time = UTC - 4 hours default
+TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, -300};  // Standard time = UTC - 5 hours default
 Timezone dipTZ(dipDST, dipSTD);
 TimeChangeRule *tcr; // pointer telling us where the TZ abbrev and offset is
 
