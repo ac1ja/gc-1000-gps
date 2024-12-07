@@ -1,3 +1,4 @@
+import os
 import git
 
 
@@ -6,6 +7,15 @@ import git
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+# -- Dynamic Stuff ------------
+
+# Get the current Read the Docs version (branch/tag)
+rtd_version = os.environ.get("READTHEDOCS_VERSION", "main")
+if rtd_version in ["latest", "stable"]:
+    github_branch = "main"
+else:
+    github_branch = rtd_version
 
 
 # -- Project information -----------------------------------------------------
@@ -45,6 +55,15 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
+
+# Fix missing edit on github button
+html_context = {
+    "display_github": True,
+    "github_user": "ac1ja",
+    "github_repo": "gc-1000-gps",
+    "github_version": github_branch,
+    "conf_py_path": "/docs/",
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
