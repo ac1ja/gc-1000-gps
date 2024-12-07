@@ -11,7 +11,7 @@ import git
 # -- Dynamic Stuff ------------
 
 # Get the current Read the Docs version (branch/tag)
-rtd_version = os.environ.get("READTHEDOCS_VERSION", "main")
+rtd_version = os.environ.get("READTHEDOCS_GIT_IDENTIFIER", "main")
 if rtd_version in ["latest", "stable"]:
     github_branch = "main"
 else:
