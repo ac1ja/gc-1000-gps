@@ -29,8 +29,8 @@
 #include "timezones.h"
 
 // Timezone
-TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, -240}; // Daylight time = UTC - 4 hours TODO: Changeme
-TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, -300};  // Standard time = UTC - 5 hours TODO: Changeme
+TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, -240}; // Daylight time = UTC - 4 hours default
+TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, -300};  // Standard time = UTC - 5 hours default
 Timezone dipTZ(dipDST, dipSTD);
 TimeChangeRule *tcr; // pointer telling us where the TZ abbrev and offset is
 
@@ -58,7 +58,9 @@ const byte TimeZoneInputs[] = {DIP0, DIP1, DIP2, DIP3, DIP4}; // what pins to us
 int16_t timeZone;                                             // the current timezone
 const byte ClockFormatInput = DIP2;                           // what pin to use to check if 24 or 12hr format
 const byte LocalTZInput = DIP0;                               // what pin to use to check if we're using UTC or local TZ (TimeZoneInputs)
-bool isUsingLocalTZInput = true;                              // Whether or not we're currently using the local tz input
+const byte ObserveDSTInput = DIP3;                            // what pin to use to check if observing DST or not
+bool isUsingLocalTZInput = true;                              // whether or not we're currently using the local tz input
+bool isObservingDST = true;                                   // whether or not we're observing DST
 
 long dipcheck = 0; // a counter to keep track of clock cycles before next update
 
@@ -174,13 +176,17 @@ void updateBoard(void)
   display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
   display.setHighSpec(isHighSpec());                // if the time has been locked in/synced to the rtc
 
-  display.setDispTime(isUsingLocalTZInput ? getUTCOffsetHours(hour()) : hour() % (clockFormat),
-                      getUTCOffsetMinutes(minute()),
+  // Local var use24mode (could be refactored)
+  bool _use24mode = clockFormat == 24;
+
+  display.setDispTime(isUsingLocalTZInput ? meridianTime(getUTCOffsetHours(hour()), _use24mode) : meridianTime(hour(), _use24mode),
+                      isUsingLocalTZInput ? getUTCOffsetMinutes(minute()) : minute(),
                       second(),
                       isHighSpec() ? (((millis() - lastTimeSync) / 100) % 10) : flasher() ? 99
                                                                                           : satsInView);
 
-  if (clockFormat != 24)
+  // Setting the AM/PM lights
+  if (!_use24mode)
   {
     display.setMeridan(getAM(hour()), !getAM(hour()));
   }
@@ -328,10 +334,13 @@ void loop()
       // Updates the flag letting us know if we're using localtz or not
       isUsingLocalTZInput = !bitRead(DIPA, LocalTZInput);
 
+      // Updates if we're observing dst or not
+      isObservingDST = bitRead(DIPA, ObserveDSTInput); // not used?
+
       // timezone
       // TODO: Most of these timezone values are HARDCODED until we find a way to easily craft dip switches that can read them.
-      TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, timeZone + 60}; // timezone offset (hrs) converted to minutes, offset by 1 hr
-      TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone};       // timezone offset (hrs) converted to minutes
+      TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, timeZone};     // timezone offset (hrs) converted to minutes, offset by 1 hr
+      TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone - 60}; // timezone offset (hrs) converted to minutes
       Timezone dipTZ(dipDST, dipSTD);
 
       dipTZ.toLocal(now(), &tcr); // setup local time (this can take thousands of cycles to compute)
@@ -339,9 +348,9 @@ void loop()
       utcMinuteOffset = tcr->offset % 60;                   // strip out every full hour offset
       utcHourOffset = (tcr->offset - utcMinuteOffset) / 60; // the full hour offset
 
-      Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), _timeZone, clockFormat, utcHourOffset);
+      Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), timeZone, clockFormat, utcHourOffset);
 
-      Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset);
+      Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d, using dst %d, is dst %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset, isObservingDST, dipTZ.utcIsDST(now()));
 
       // Reset flags and sums
       newSettingsFlag = false;

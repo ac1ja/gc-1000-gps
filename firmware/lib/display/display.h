@@ -45,6 +45,7 @@ public:
         SLOW = 0b0000001,
         NONE = 0b0000010,
         FAST = 0b0000100,
+        ALL = 0b0000111,
     };
 
     Display(uint8_t _segEnablePin, uint8_t _latchPin, uint8_t _dataPin, uint8_t _clockPin);
