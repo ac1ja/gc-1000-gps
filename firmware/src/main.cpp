@@ -47,7 +47,8 @@ volatile bool pps = 0;
 // Time and time vars
 uint8_t storedMonth, storedDay, storedHour, storedMinute, storedSecond, storedHundredths, storedTenths;
 int16_t storedYear;
-uint32_t storedAge; // same as fixed_afe in docs, time since fix.
+uint32_t storedAge;      // same as fixed_afe in docs, time since fix.
+unsigned long last_loop; // Used for calculating loop time
 volatile bool syncReady;
 volatile byte lastMinute;
 
@@ -122,9 +123,19 @@ void syncCheck()
       // Compute Drift
       // byte drift = storedSecond - rtc.now().second();
       int drift = storedSecond - second() - 1;
+      syncReady = false; // Reset syncReady flag
 
-      setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear); // Set the time? This puts this time in local
+      // Only bother adjusting the time if needed (issue #18)
+      if (drift == 0)
+      {
+        // Leverages the internal time system for fast time access
+        setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear);
+        // adjustTime(1); // 1pps signal = start of next second
+      }
+
       rtc.adjust(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond));
+      lastTimeSync = millis();
+      hasTimeBeenSet = true; // Time has been set
 
       // Display Drift
       if (abs(drift) < 0)
@@ -140,19 +151,6 @@ void syncCheck()
         display.setDrift(display.NONE);
       }
 
-      // rtc.adjust(dipTZ.toLocal(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond).unixtime())); // adjust the time to the tz.tolocal conversion of gps stored data
-      adjustTime(1); // 1pps signal = start of next second
-
-      // Skip updating the last time sync if not pps
-      if (pps)
-      {
-        lastTimeSync = millis();
-      }
-      hasTimeBeenSet = true;     // Time has been set
-      newSettingsFlag = true;    // New settings are in place
-      syncReady = false;         // Reset syncReady flag
-      lastMinute = storedMinute; // Last minute is now the stored minute
-
       Log.infoln("Synced! Drift was %d seconds", drift);
     }
     else
@@ -167,6 +165,9 @@ void syncCheck()
     // Might be nice to move this to a more periodic function if we go the RTOS route.
     pullRTCTime();
   }
+
+  newSettingsFlag = true;    // New settings are in place
+  lastMinute = storedMinute; // Last minute is now the stored minute
 }
 
 void updateBoard(void)
@@ -251,6 +252,9 @@ void setup()
 
   // Quick-load rtc time at boot
   pullRTCTime();
+
+  // Set last loop
+  last_loop = millis();
 }
 
 void loop()
@@ -258,6 +262,8 @@ void loop()
   // if we have not yet set the time OR if the current time is out of date
   if (!hasTimeBeenSet || !isHighSpec())
   {
+    unsigned long _start = millis();
+
     while (Serial3.available())
     {
       char c = Serial3.read();
@@ -291,10 +297,12 @@ void loop()
         {
           Log.warningln("Could not set time: Data too old");
         }
+
+        syncCheck();
+        Log.verboseln("Cracking GPS packet took %dms.", millis() - _start);
+        break;
       }
-      syncCheck(); // check for a sync after attempting to crack a new data stream TODO: we may not need to check here if the last crack failed.
     }
-    syncCheck(); // check for a sync after we've finished running through all available GPS data TODO: we may not need to check here if the last crack failed.
   }
 
   // check if its time to check for the dip settings TODO: move this to a scheduled task, see branch task-scheduler
@@ -361,4 +369,11 @@ void loop()
 
   // Trigger Watchdog
   wdt_reset();
+
+  unsigned long _dur = millis() - last_loop;
+  last_loop = millis();
+  if (_dur > 50)
+  {
+    Log.warningln("Main Loop overrun, took %dms.", _dur);
+  }
 }

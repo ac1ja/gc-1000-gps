@@ -5,4 +5,4 @@
  */
 
 // The amount of time a recent sync is considered "high-spec" for.
-const uint16_t hiSpecMaxAge = 60000;
+const uint16_t hiSpecMaxAge = 80000;
