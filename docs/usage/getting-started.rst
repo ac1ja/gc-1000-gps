@@ -38,16 +38,29 @@ Sequence Diagram
       Note left of GPS: GPS may not have<br/>valid sync yet.<br/>Arduino will wait here.
       Note right of Arduino: We set a flag here and advance the<br/>second counter. We will wait for the GPS<br/>Inturrupt to trigger
       Arduino->>Arduino: Set SyncReady Flag
-      critical Inturrupt Sequence
-        GPS-)Arduino: PPS inturrupt!
-        RTC-->>Arduino: Compare time to rtc to calculate drift
-        Arduino-)RTC: Set precise time.
-      end
-      
-GPS Time Spec
--------------
 
-The gps time spec is formatted like such...
+      critical Inturrupt Sequence (GPS Pulse Per Second)
+        RTC->>Arduino: Collect RTC Time.
+        GPS->>+Arduino: Collect GPS Time.
+        Arduino->>-Arduino: Compute drift.
+        Note left of Arduino: Transmission time can have<br/>an effect, so we pull<br/>rtc time first and sync on<br/>gps PPS signal.
+        Arduino->>+RTC: Set or adjust RTC time (if needed)
+        RTC->>-Arduino: Set internal time (if drift detected)
+      end
+
+
+Code
+----
+
+.. literalinclude:: ../../firmware/src/main.cpp
+   :language: cpp
+   :lines: 113-126
+   :emphasize-lines: 6-8
+
+Sync Check is our main tool for ensuring accurate sync with the GPS.
+
+GPS Chips like the Ultimate GPS V3 used in the GC-1000-GPS output a very accurate
+gps PPS signal that we can use and listen to in order to synchronize our clock.
 
 
 Disciplined Oscillator

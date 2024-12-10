@@ -112,11 +112,12 @@ void pullRTCTime()
 
 void syncCheck()
 {
-  // Log.verboseln(F("Checking sync, pps %d, syncReady %d, hasTimeBeenSet %d, !isHighSpec %d"), pps, syncReady, !hasTimeBeenSet, !isHighSpec());
-
-  // Checks the PPS flag, limits us to doing a syncCheck once per second.
-  if (pps) // TODO: add a timeout here so we can sync even without pps signal
+  // Checks the PPS flag, limits us to doing only one syncCheck per second.
+  if (pps)
   {
+    // syncReady means that the GPS has a valid time and will wait for the PPS to trigger the precise second
+    // hasTimeBeenSet tells us if the time has been set at all (cold start)
+    // isHighSpec() tells us if the time is valid and known-good (High Accuracy)
     if (syncReady && (!hasTimeBeenSet || !isHighSpec()))
     {
       // Compute Drift
