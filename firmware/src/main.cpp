@@ -167,7 +167,6 @@ void syncCheck()
     pullRTCTime();
   }
 
-  newSettingsFlag = true;    // New settings are in place
   lastMinute = storedMinute; // Last minute is now the stored minute
 }
 
