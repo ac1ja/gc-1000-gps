@@ -53,12 +53,12 @@ void Display::updateBoard()
     digitalWrite(segEnablePin, 1);
 };
 
-void Display::setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tenths)
+void Display::setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tenths, bool displayLeading)
 {
     switch (currentSegment)
     { // switch on digit location
     case 0:
-        dispData = getDigitByte(hour / 10, 0);
+        dispData = displayLeading ? getDigitByte(hour / 10, 0) : 0b01101111;
         break;
     case 1:
         dispData = getDigitByte(hour % 10, 1);

@@ -184,7 +184,8 @@ void updateBoard(void)
                       isUsingLocalTZInput ? getUTCOffsetMinutes(minute()) : minute(),
                       second(),
                       isHighSpec() ? (((millis() - lastTimeSync) / 100) % 10) : flasher() ? 99
-                                                                                          : satsInView);
+                                                                                          : satsInView,
+                      _use24mode);
 
   // Setting the AM/PM lights
   if (!_use24mode)
