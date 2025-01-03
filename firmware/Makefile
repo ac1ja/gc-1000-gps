@@ -46,9 +46,12 @@ monitor:
 
 # Remote versions of the above
 flash-remote:
-	pio remote --agent silvertech-desk run --target upload --upload-port /dev/ttyACM0
+	pio remote --agent silvertech-iot run --target upload --upload-port /dev/ttyACM0
 
 monitor-remote:
-	pio remote --agent silvertech-desk device monitor -p /dev/ttyACM0
+	pio remote --agent silvertech-iot device monitor -p /dev/ttyACM0
+
+test-remote:
+	pio remote --agent silvertech-iot test
 
 debug-remote: flash-remote monitor-remote

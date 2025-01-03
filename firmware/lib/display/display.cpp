@@ -53,12 +53,22 @@ void Display::updateBoard()
     digitalWrite(segEnablePin, 1);
 };
 
-void Display::setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tenths)
+void Display::setDispTime(uint8_t hour, uint8_t minute, uint8_t second, uint8_t tenths, bool displayLeading)
 {
     switch (currentSegment)
     { // switch on digit location
     case 0:
-        dispData = getDigitByte(hour / 10, 0);
+        // Special condition here.. must not build with leading byte if disabled.
+        if (hour < 10)
+        {
+            // Optional for numbers less than 10 (0-9)
+            dispData = displayLeading ? getDigitByte(hour / 10, 0) : 0b01101111;
+        }
+        else
+        { // Otherwise its gonna be what it is.
+            dispData = getDigitByte(hour / 10, 0);
+        }
+
         break;
     case 1:
         dispData = getDigitByte(hour % 10, 1);

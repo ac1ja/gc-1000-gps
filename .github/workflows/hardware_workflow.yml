@@ -17,7 +17,7 @@ jobs:
     name: KiCad Hardware
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: true
@@ -34,7 +34,7 @@ jobs:
           board: "hardware/gc-1000-gps/gc-1000-gps.kicad_pcb"
 
       - name: upload results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Board-Hardware
           path: _hardwareOutput
@@ -46,12 +46,12 @@ jobs:
 
     steps:
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
           architecture: x64
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -62,7 +62,7 @@ jobs:
         run: pip install -r docs/requirements.txt
 
       # Download artifacts from other builds
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: Board-Hardware
           path: _hardwareOutput
@@ -76,7 +76,7 @@ jobs:
         # Combine together
       - run: pdftk docs/_build/latex/Board-Manual-Only.pdf _hardwareOutput/gc-1000-gps-schematic.pdf cat output docs/_build/latex/Board-Manual.pdf
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: Board-Manual
           path: docs/_build/latex/Board-Manual.pdf
@@ -90,16 +90,16 @@ jobs:
 
     steps:
       # Be in our repo
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       # Download artifacts
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: Board-Manual
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: Board-Hardware
 

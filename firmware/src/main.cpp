@@ -29,8 +29,8 @@
 #include "timezones.h"
 
 // Timezone
-TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, -240}; // Daylight time = UTC - 4 hours TODO: Changeme
-TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, -300};  // Standard time = UTC - 5 hours TODO: Changeme
+TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, -240}; // Daylight time = UTC - 4 hours default
+TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, -300};  // Standard time = UTC - 5 hours default
 Timezone dipTZ(dipDST, dipSTD);
 TimeChangeRule *tcr; // pointer telling us where the TZ abbrev and offset is
 
@@ -47,7 +47,8 @@ volatile bool pps = 0;
 // Time and time vars
 uint8_t storedMonth, storedDay, storedHour, storedMinute, storedSecond, storedHundredths, storedTenths;
 int16_t storedYear;
-uint32_t storedAge; // same as fixed_afe in docs, time since fix.
+uint32_t storedAge;      // same as fixed_afe in docs, time since fix.
+unsigned long last_loop; // Used for calculating loop time
 volatile bool syncReady;
 volatile byte lastMinute;
 
@@ -58,7 +59,9 @@ const byte TimeZoneInputs[] = {DIP0, DIP1, DIP2, DIP3, DIP4}; // what pins to us
 int16_t timeZone;                                             // the current timezone
 const byte ClockFormatInput = DIP2;                           // what pin to use to check if 24 or 12hr format
 const byte LocalTZInput = DIP0;                               // what pin to use to check if we're using UTC or local TZ (TimeZoneInputs)
-bool isUsingLocalTZInput = true;                              // Whether or not we're currently using the local tz input
+const byte ObserveDSTInput = DIP3;                            // what pin to use to check if observing DST or not
+bool isUsingLocalTZInput = true;                              // whether or not we're currently using the local tz input
+bool isObservingDST = true;                                   // whether or not we're observing DST
 
 long dipcheck = 0; // a counter to keep track of clock cycles before next update
 
@@ -110,19 +113,30 @@ void pullRTCTime()
 
 void syncCheck()
 {
-  // Log.verboseln(F("Checking sync, pps %d, syncReady %d, hasTimeBeenSet %d, !isHighSpec %d"), pps, syncReady, !hasTimeBeenSet, !isHighSpec());
-
-  // Checks the PPS flag, limits us to doing a syncCheck once per second.
-  if (pps) // TODO: add a timeout here so we can sync even without pps signal
+  // Checks the PPS flag, limits us to doing only one syncCheck per second.
+  if (pps)
   {
+    // syncReady means that the GPS has a valid time and will wait for the PPS to trigger the precise second
+    // hasTimeBeenSet tells us if the time has been set at all (cold start)
+    // isHighSpec() tells us if the time is valid and known-good (High Accuracy)
     if (syncReady && (!hasTimeBeenSet || !isHighSpec()))
     {
       // Compute Drift
       // byte drift = storedSecond - rtc.now().second();
       int drift = storedSecond - second() - 1;
+      syncReady = false; // Reset syncReady flag
 
-      setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear); // Set the time? This puts this time in local
+      // Only bother adjusting the time if needed (issue #18)
+      if (drift == 0)
+      {
+        // Leverages the internal time system for fast time access
+        setTime(storedHour, storedMinute, storedSecond, storedDay, storedMonth, storedYear);
+        // adjustTime(1); // 1pps signal = start of next second
+      }
+
       rtc.adjust(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond));
+      lastTimeSync = millis();
+      hasTimeBeenSet = true; // Time has been set
 
       // Display Drift
       if (abs(drift) < 0)
@@ -138,19 +152,6 @@ void syncCheck()
         display.setDrift(display.NONE);
       }
 
-      // rtc.adjust(dipTZ.toLocal(DateTime(storedYear, storedMonth, storedDay, storedHour, storedMinute, storedSecond).unixtime())); // adjust the time to the tz.tolocal conversion of gps stored data
-      adjustTime(1); // 1pps signal = start of next second
-
-      // Skip updating the last time sync if not pps
-      if (pps)
-      {
-        lastTimeSync = millis();
-      }
-      hasTimeBeenSet = true;     // Time has been set
-      newSettingsFlag = true;    // New settings are in place
-      syncReady = false;         // Reset syncReady flag
-      lastMinute = storedMinute; // Last minute is now the stored minute
-
       Log.infoln("Synced! Drift was %d seconds", drift);
     }
     else
@@ -165,6 +166,8 @@ void syncCheck()
     // Might be nice to move this to a more periodic function if we go the RTOS route.
     pullRTCTime();
   }
+
+  lastMinute = storedMinute; // Last minute is now the stored minute
 }
 
 void updateBoard(void)
@@ -174,15 +177,22 @@ void updateBoard(void)
   display.setCapture(!digitalRead(gpsSerialCheck)); // if the gps is being read from
   display.setHighSpec(isHighSpec());                // if the time has been locked in/synced to the rtc
 
-  display.setDispTime(isUsingLocalTZInput ? getUTCOffsetHours(hour()) : hour() % (clockFormat),
-                      getUTCOffsetMinutes(minute()),
+  // Local var use24mode (could be refactored)
+  bool _use24mode = clockFormat == 24;
+
+  display.setDispTime(isUsingLocalTZInput ? meridianTime(getUTCOffsetHours(hour()), _use24mode) : meridianTime(hour(), _use24mode),
+                      isUsingLocalTZInput ? getUTCOffsetMinutes(minute()) : minute(),
                       second(),
                       isHighSpec() ? (((millis() - lastTimeSync) / 100) % 10) : flasher() ? 99
-                                                                                          : satsInView);
+                                                                                          : satsInView,
+                      _use24mode);
 
-  if (clockFormat != 24)
+  // Setting the AM/PM lights
+  // Log.verbose(F("Setting the AM/PM lights for %d" CR), hour());
+
+  if (!_use24mode)
   {
-    display.setMeridan(getAM(hour()), !getAM(hour()));
+    display.setMeridan(getAM(getUTCOffsetHours(hour())), !getAM(getUTCOffsetHours(hour())));
   }
   else
   {
@@ -245,6 +255,9 @@ void setup()
 
   // Quick-load rtc time at boot
   pullRTCTime();
+
+  // Set last loop
+  last_loop = millis();
 }
 
 void loop()
@@ -252,6 +265,8 @@ void loop()
   // if we have not yet set the time OR if the current time is out of date
   if (!hasTimeBeenSet || !isHighSpec())
   {
+    unsigned long _start = millis();
+
     while (Serial3.available())
     {
       char c = Serial3.read();
@@ -285,10 +300,12 @@ void loop()
         {
           Log.warningln("Could not set time: Data too old");
         }
+
+        syncCheck();
+        Log.verboseln("Cracking GPS packet took %dms.", millis() - _start);
+        break;
       }
-      syncCheck(); // check for a sync after attempting to crack a new data stream TODO: we may not need to check here if the last crack failed.
     }
-    syncCheck(); // check for a sync after we've finished running through all available GPS data TODO: we may not need to check here if the last crack failed.
   }
 
   // check if its time to check for the dip settings TODO: move this to a scheduled task, see branch task-scheduler
@@ -328,10 +345,13 @@ void loop()
       // Updates the flag letting us know if we're using localtz or not
       isUsingLocalTZInput = !bitRead(DIPA, LocalTZInput);
 
+      // Updates if we're observing dst or not
+      isObservingDST = bitRead(DIPA, ObserveDSTInput); // not used?
+
       // timezone
       // TODO: Most of these timezone values are HARDCODED until we find a way to easily craft dip switches that can read them.
-      TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, timeZone + 60}; // timezone offset (hrs) converted to minutes, offset by 1 hr
-      TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone};       // timezone offset (hrs) converted to minutes
+      TimeChangeRule dipDST = {"DST", Second, Sun, Mar, 2, timeZone};     // timezone offset (hrs) converted to minutes, offset by 1 hr
+      TimeChangeRule dipSTD = {"STD", First, Sun, Nov, 2, timeZone - 60}; // timezone offset (hrs) converted to minutes
       Timezone dipTZ(dipDST, dipSTD);
 
       dipTZ.toLocal(now(), &tcr); // setup local time (this can take thousands of cycles to compute)
@@ -339,9 +359,9 @@ void loop()
       utcMinuteOffset = tcr->offset % 60;                   // strip out every full hour offset
       utcHourOffset = (tcr->offset - utcMinuteOffset) / 60; // the full hour offset
 
-      Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), _timeZone, clockFormat, utcHourOffset);
+      Log.verbose(F("Offset is %d, clock format is %d, utcHourOffset is %d" CR), timeZone, clockFormat, utcHourOffset);
 
-      Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset);
+      Log.verboseln(F("UTC offset minutes is %d, minute is %d, minuteOffset is %d, using dst %d, is dst %d"), getUTCOffsetMinutes(minute()), minute(), utcMinuteOffset, isObservingDST, dipTZ.utcIsDST(now()));
 
       // Reset flags and sums
       newSettingsFlag = false;
@@ -352,4 +372,11 @@ void loop()
 
   // Trigger Watchdog
   wdt_reset();
+
+  unsigned long _dur = millis() - last_loop;
+  last_loop = millis();
+  if (_dur > 50)
+  {
+    Log.warningln("Main Loop overrun, took %dms.", _dur);
+  }
 }
