@@ -188,9 +188,11 @@ void updateBoard(void)
                       _use24mode);
 
   // Setting the AM/PM lights
+  // Log.verbose(F("Setting the AM/PM lights for %d" CR), hour());
+
   if (!_use24mode)
   {
-    display.setMeridan(getAM(hour()), !getAM(hour()));
+    display.setMeridan(getAM(getUTCOffsetHours(hour())), !getAM(getUTCOffsetHours(hour())));
   }
   else
   {
